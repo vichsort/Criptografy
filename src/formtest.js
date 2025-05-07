@@ -1,34 +1,14 @@
 import { LitElement, html } from 'lit'
+import { processForm } from './process.js' // importa sua função
 
 class ContactForm extends LitElement {
     formSubmit(e) {
-      e.preventDefault()
-      const form = e.target
-  
-      const formData = new FormData(form)
-      const formValues = Object.fromEntries(formData.entries())
-  
-      console.log(formValues)
-  
-      const name = formValues.name
-      const birthDate = new Date(formValues.birthDate) // ou parseISO se quiser importar
-      const subject = formValues.subject
-      const acceptRules = Boolean(formValues.acceptRules)
-  
-      const finalData = { name, birthDate, subject, acceptRules }
-
-      console.log('Dados processados:', finalData)
-
-      // (Opcional) Dispara um evento customizado
-      this.dispatchEvent(new CustomEvent('form-data', {
-        detail: finalData,
-        bubbles: true,
-        composed: true
-      }))
+        const finalData = processForm(e, true)
+        this.result = finalData // trata o resultado no componente
     }
   
     render() {
-      return html`
+        return html`
         <form @submit=${this.formSubmit}>
           <label for="name">Nome:</label>
           <input type="text" id="name" name="name" required />
@@ -48,8 +28,8 @@ class ContactForm extends LitElement {
   
           <input type="submit" />
         </form>
-      `
+        `
     }
 }
-  
+
 window.customElements.define('form-test', ContactForm)
