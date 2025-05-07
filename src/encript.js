@@ -1,31 +1,43 @@
 import { LitElement, css, html } from 'lit'
-export class InputComponent extends LitElement {
+import { processForm } from './process.js'
 
+export class InputComponent extends LitElement {
+  static get properties() {
+    return {
+      type: { type: String },
+    }
+  }
+
+  constructor() {
+    super()
+    this.type = 'Matrizes'
+  }
   render() {
     return html`
-      <form method="post" action="{{ url_for('buscar') }}">
-        <div class="col-md-4">
-          <label for="caller" class="form-label">Buscar por</label>
-          <select class="form-select" id="caller" name="caller" required>
-            <option value="title">Título</option>
-            <option value="id">IMDb ID</option>
-          </select>
+
+      <div class="card">
+        <div class="heading">
+          <h1>Encript by ${this.type}</h1>
         </div>
-        <div class="col-md-8">
-          <label for="info" class="form-label">Título ou ID</label>
-          <input
-            type="text"
-            class="form-control"
-            id="info"
-            name="info"
-            placeholder="Ex: tt1877830 ou The Batman"
-            required
-          />
-        </div>
-        <div class="col-12">
-          <button type="submit" class="btn btn-primary">Buscar</button>
-        </div>
-      </form>
+
+        <hr>
+
+        <form method="post" action="{{ url_for('buscar') }}">
+          <div class="form-head">
+            <label for="encript" class="form-label">Encript</label>
+            <input
+              type="text"
+              class="form-control"
+              id="encript"
+              name="encript"
+              placeholder="aah"
+            />
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+          </div>
+        </form>
+      </div>
     `
   }
 
