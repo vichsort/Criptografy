@@ -19,96 +19,55 @@ function encript(val) {
 
     const arrayVal = val.split("");
     if (arrayVal.length % 2 !== 0) {
-        // matrix multiplications can only be assigned to even numbers
         arrayVal.push(".");
     }
 
-    // generates the 'matrix'
-    let matrix = [];
+    const matrix = [];
     for (let i = 0; i < arrayVal.length; i += 2) {
-      matrix.push([arrayVal[i], arrayVal[i + 1]]);
+        matrix.push([arrayVal[i], arrayVal[i + 1]]);
     }
 
-    let numMatrix = matrix.map(par => par.map(char => char.charCodeAt(0)));
-    let randMatrix = numMatrix.map(par => par.map(() => Math.floor(Math.random() * 100) + 1));
+    const numMatrix = matrix.map(pair => pair.map(char => char.charCodeAt(0)));
+    const randMatrix = numMatrix.map(pair => pair.map(() => Math.floor(Math.random() * 20) + 1));
 
-    const criptMatrix = numMatrix.map((par, i) =>
-        par.map((num, j) => (num * randMatrix[i][j]).toString()).join(".")
-      ).join(".");
+    const criptMatrix = numMatrix.map((pair, i) =>
+        pair.map((num, j) => (num * randMatrix[i][j]).toString()).join(".")
+    ).join(".");
 
-    const criptKey = randMatrix.map(par => par.join(", ")).join(",. ");
+    const criptKey = JSON.stringify(randMatrix);
 
-    console.log(criptMatrix)
-    console.log('-------')
-    console.log(criptKey)
+    console.log('Criptografado:', criptMatrix);
+    console.log('Chave:', criptKey);
 }
+
 
 function decript(val) {
     console.log(val);
-    
-}
 
-function criptografar() {
-  
-    // cria a matriz de pares de caracteres
-    let matriz = [];
-    for (let i = 0; i < arrayVal.length; i += 2) {
-      matriz.push([arrayVal[i], arrayVal[i + 1]]);
-    }
-  
-    // converte para o valor do pc
-    let matrizNumeros = matriz.map(par => par.map(char => char.charCodeAt(0)));
-  
-    // cria uma matriz de números aleatórios
-    let matrizAleatoria = matrizNumeros.map(par => par.map(() => Math.floor(Math.random() * 100) + 1));
-  
-    // multiplica as    matrizes
-    let matrizCriptografada = matrizNumeros.map((par, i) =>
-      par.map((num, j) => (num * matrizAleatoria[i][j]).toString()).join(".")
-    ).join(".");
-  
-    // formata a matriz aleatória para ser impressa como um texto corrido, separando as linhas por '.'
-    let chaveDescriptografia = matrizAleatoria.map(par => par.join(", ")).join(",. ");
-  
-    document.write("Palavra criptografada:");
-    document.write(matrizCriptografada);
-    document.write("Chave de descriptografia:");
-    document.write(chaveDescriptografia);
-}
-
-function descriptografar() {
-
-    let palavraCriptografada = prompt("Insira a palavra criptografada:");
-    let chaveDescriptografiaTexto = prompt("Insira a chave de descriptografia:");
-
-    // converte a palavra criptografada em uma matriz de números (removendo os pontos)
-    let numerosCriptografados = palavraCriptografada.split(".").map(Number);
-
-    // converte a chave de descriptografia do formato corrido de volta para uma matriz de números
-    let matrizAleatoria = chaveDescriptografiaTexto
+    let cript = val.split(".").map(Number);
+    let randMatrix = criptKey
         .split(',. ') 
         .map(linha => linha.split(', ').map(Number)); 
-    if (numerosCriptografados.length !== matrizAleatoria.flat().length) {
-        console.error("O tamanho da palavra criptografada e da chave de descriptografia não correspondem.");
+
+    if (cript.length !== randMatrix.flat().length) {
+        console.error("Either your encripted text or your key is invalid.");
         return;
     }
 
-    // cria a matriz de pares com base no tamanho da chave de descrpiptografia
-    let indice = 0;
-    let matrizOriginal = [];
-    for (let i = 0; i < matrizAleatoria.length; i++) {
-        let par = [];
-        for (let j = 0; j < matrizAleatoria[i].length; j++) {
-        // divide essa ´porra (o número criptografado) pelo valor da matriz aleatória correspondente
-        let numOriginal = numerosCriptografados[indice] / matrizAleatoria[i][j];
-        par.push(Math.round(numOriginal)); // arredonda
-        indice++;
+    let index = 0;
+    let matrix = [];
+    for (let i = 0; i < randMatrix.length; i++) {
+        let doubles = [];
+        for (let j = 0; j < randMatrix[i].length; j++) {
+        let originalNum = cript[indice] / randMatrix[i][j];
+        doubles.push(Math.round(originalNum)); // arredonda
+        index++;
         }
-        matrizOriginal.push(par);
+        matrix.push(doubles);
     }
 
     // converte essa porra
-    let fraseDescriptografada = matrizOriginal.map(par => par.map(num => String.fromCharCode(num)).join("")).join("");
+    let ans = matrix.map(par => par.map(num => String.fromCharCode(num)).join("")).join("");
 
-    document.write("Frase descriptografada: " + fraseDescriptografada);
+    console.log("Frase descriptografada: ", ans);
 }
