@@ -10,17 +10,19 @@ class NavbarElement extends LitElement {
                 <a href="#">Saiba mais</a>
             </div>
 
-            <button @click=${this._openSide}>Abrir pros cria</button>
-        `
+            <button @click=${this._openSide}>Open</button>
+        `;
     }
 
-    _openside() {
-        document.getElementById('sidenav').style.width = '200px';
+    _openSide() {
+        const sidenav = this.renderRoot.querySelector('#sidenav');
+        sidenav.style.width = '200px';
         console.log('whatsapp');
     }
 
-    _closeside() {
-        document.getElementById('sidenav').style.width = '0';
+    _closeSide() {
+        const sidenav = this.renderRoot.querySelector('#sidenav');
+        sidenav.style.width = '0';
     }
     
     static get styles() {

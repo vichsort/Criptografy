@@ -6,12 +6,16 @@ Formas diferentes de criptografar.
 ├── 📁 node_modules
 ├── 📁 public
 ├── 📁 src
-│   └── 📁 assets
-│   └── 📄 decript.js // pagina de decriptografia
-│   └── 📄 encript.js // pagina de criptografia
+│   ├── 📁 assets
+│   └── 📁 components
+│   │   ├── 📄 footer.js
+│   │   └── 📄 navbar.js
+│   └── 📁 main
+│   │   ├── 📄 decript.js // pagina de decriptografia
+│   │   ├── 📄 encript.js // pagina de criptografia
+│   │   └── 📄 process.js // local onde ocorre a coleta e manuseio de informações
 │   └── 📄 index.css
 │   └── 📄 main.js // página principal
-│   └── 📄 process.js // local onde ocorre a coleta e manuseio de informações
 ├── 📄 .gitignore
 ├── 📄 index.html 
 ├── 📄 package-lock.json        
