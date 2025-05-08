@@ -1,7 +1,7 @@
 import { LitElement, css, html } from 'lit'
 import { processForm } from './process.js'
 
-export class InputComponent extends LitElement {
+class EncriptForm extends LitElement {
   static get properties() {
     return {
       type: { type: String },
@@ -12,6 +12,12 @@ export class InputComponent extends LitElement {
     super()
     this.type = 'Matrizes'
   }
+
+  formSubmit(e) {
+    const finalData = processForm(e, true)
+    this.result = finalData
+  }
+
   render() {
     return html`
 
@@ -22,7 +28,7 @@ export class InputComponent extends LitElement {
 
         <hr>
 
-        <form method="post" action="{{ url_for('buscar') }}">
+        <form method="post" @submit=${this.formSubmit}>
           <div class="form-head">
             <label for="encript" class="form-label">Encript</label>
             <input
@@ -33,16 +39,10 @@ export class InputComponent extends LitElement {
               placeholder="aah"
             />
           </div>
-          <div class="col-12">
-            <button type="submit" class="btn btn-primary">Buscar</button>
-          </div>
+          <input type="submit" />
         </form>
       </div>
     `
-  }
-
-  _onClick() {
-    this.count++
   }
 
   static get styles() {
@@ -120,4 +120,4 @@ export class InputComponent extends LitElement {
   }
 }
 
-window.customElements.define('input-component', InputComponent)
+window.customElements.define('encript-form', EncriptForm)

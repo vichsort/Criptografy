@@ -1,13 +1,47 @@
-import { LitElement, css, html } from 'lit';
-import './encript.js';
-import './decript.js';
+import { LitElement, css, html } from 'lit'
+import { processForm } from './process.js'
 
+class DecriptForm extends LitElement {
+  static get properties() {
+    return {
+      type: { type: String },
+    }
+  }
 
-export class MainElement extends LitElement {
+  constructor() {
+    super()
+    this.type = 'Matrizes'
+  }
+
+  formSubmit(e) {
+    const finalData = processForm(e, false)
+    this.result = finalData
+  }
+
   render() {
     return html`
-      <encript-form></encript-form>
-      <decript-form></decript-form>
+
+      <div class="card">
+        <div class="heading">
+          <h1>Decript by ${this.type}</h1>
+        </div>
+
+        <hr>
+
+        <form method="post" @submit=${this.formSubmit}>
+          <div class="form-head">
+            <label for="decript" class="form-label">Decript</label>
+            <input
+              type="text"
+              class="form-control"
+              id="decript"
+              name="decript"
+              placeholder="aah"
+            />
+          </div>
+          <input type="submit" />
+        </form>
+      </div>
     `
   }
 
@@ -86,4 +120,4 @@ export class MainElement extends LitElement {
   }
 }
 
-window.customElements.define('main-element', MainElement)
+window.customElements.define('decript-form', DecriptForm)
