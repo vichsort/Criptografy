@@ -1,11 +1,13 @@
 import { LitElement, css, html } from 'lit';
-import './encript.js';
-import './decript.js';
+import './main/encript.js';
+import './main/decript.js';
+import './components/navbar.js';
 
 
 export class MainElement extends LitElement {
   render() {
     return html`
+      <navbar-element></navbar-element>
       <encript-form></encript-form>
       <decript-form></decript-form>
     `
