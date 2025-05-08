@@ -17,6 +17,30 @@ export function processForm(e, cript) {
 function encript(val) {
     console.log(val);
 
+    const arrayVal = val.split("");
+    if (arrayVal.length % 2 !== 0) {
+        // matrix multiplications can only be assigned to even numbers
+        arrayVal.push(".");
+    }
+
+    // generates the 'matrix'
+    let matrix = [];
+    for (let i = 0; i < arrayVal.length; i += 2) {
+      matrix.push([arrayVal[i], arrayVal[i + 1]]);
+    }
+
+    let numMatrix = matrix.map(par => par.map(char => char.charCodeAt(0)));
+    let randMatrix = numMatrix.map(par => par.map(() => Math.floor(Math.random() * 100) + 1));
+
+    const criptMatrix = numMatrix.map((par, i) =>
+        par.map((num, j) => (num * randMatrix[i][j]).toString()).join(".")
+      ).join(".");
+
+    const criptKey = randMatrix.map(par => par.join(", ")).join(",. ");
+
+    console.log(criptMatrix)
+    console.log('-------')
+    console.log(criptKey)
 }
 
 function decript(val) {
@@ -25,20 +49,11 @@ function decript(val) {
 }
 
 function criptografar() {
-    let frase = prompt("Insira uma frase para criptografar:");
-  
-    // o prompt vira array
-    let arrayFrase = frase.split("");
-  
-    // a multiplicação de matrizes precisa ter matriz par, entao aqui decide
-    if (arrayFrase.length % 2 !== 0) {
-      arrayFrase.push(".");
-    }
   
     // cria a matriz de pares de caracteres
     let matriz = [];
-    for (let i = 0; i < arrayFrase.length; i += 2) {
-      matriz.push([arrayFrase[i], arrayFrase[i + 1]]);
+    for (let i = 0; i < arrayVal.length; i += 2) {
+      matriz.push([arrayVal[i], arrayVal[i + 1]]);
     }
   
     // converte para o valor do pc
