@@ -30,12 +30,12 @@ class DecriptForm extends LitElement {
 
         <form method="post" @submit=${this.formSubmit}>
           <div class="form-head">
-            <label for="decript" class="form-label">Decript</label>
+            <label for="value" class="form-label">Decript</label>
             <input
               type="text"
               class="form-control"
-              id="decript"
-              name="decript"
+              id="value"
+              name="value"
               placeholder="aah"
             />
           </div>

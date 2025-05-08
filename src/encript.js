@@ -30,12 +30,12 @@ class EncriptForm extends LitElement {
 
         <form method="post" @submit=${this.formSubmit}>
           <div class="form-head">
-            <label for="encript" class="form-label">Encript</label>
+            <label for="value" class="form-label">Encript</label>
             <input
               type="text"
               class="form-control"
-              id="encript"
-              name="encript"
+              id="value"
+              name="value"
               placeholder="aah"
             />
           </div>

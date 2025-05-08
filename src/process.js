@@ -3,24 +3,23 @@ export function processForm(e, cript) {
     const form = e.target
   
     const formData = new FormData(form)
-    const formValues = Object.fromEntries(formData.entries())
-  
-    console.log(formValues)
-  
-    const name = formValues.name
-    const birthDate = new Date(formValues.birthDate)
-    const subject = formValues.subject
-    const acceptRules = Boolean(formValues.acceptRules)
-  
-    const finalData = { name, birthDate, subject, acceptRules }
-
-    console.log('Dados processados:', finalData)
+    const value = formData.get("value")
 
     if (cript == true) {
-        console.log("estamos encriptando")
+        console.log("estamos encriptando");
+        encript(value);
     } else {
-        console.log("estamos decriptando")
+        console.log("estamos decriptando");
+        decript(value);
     }
+}
 
-    return finalData
+function encript(val) {
+    console.log(val);
+
+}
+
+function decript(val) {
+    console.log(val);
+    
 }
