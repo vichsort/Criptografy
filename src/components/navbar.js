@@ -3,41 +3,22 @@ import { LitElement, css, html } from 'lit';
 class NavbarElement extends LitElement {
     render() {
         return html`
-            <div class="sidenav" id="sidenav">
-                <a href="#" class="close" @click=${this._closeSide}>&times;</a>
-                <a href="#">Sobre</a>
-                <a href="#">Introdução</a>
-                <a href="#">Saiba mais</a>
-            </div>
-
-            <button @click=${this._openSide}>Open</button>
+            <img src="/logo.png" alt="our logo">
         `;
-    }
-
-    _openSide() {
-        const sidenav = this.renderRoot.querySelector('#sidenav');
-        sidenav.style.width = '200px';
-        console.log('whatsapp');
-    }
-
-    _closeSide() {
-        const sidenav = this.renderRoot.querySelector('#sidenav');
-        sidenav.style.width = '0';
     }
     
     static get styles() {
         return css`
-            .sidenav {
-                height: 100%;
-                width: 0;
-                position: fixed;
-                z-index: 1;
-                top: 0;
-                left: 0;
-                background-color: #111;
-                overflow-x: hidden;
-                transition: 0.5s;
-                padding-top: 60px;
+            :host {
+                background-color: green;
+                padding: 1rem 6rem;
+                display: flex;
+                justify-content: center;
+            }
+
+            img {
+                width: 10rem;
+                height: 4rem;
             }
         `
     }

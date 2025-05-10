@@ -1,5 +1,6 @@
 // src/main/main.js
 import { LitElement, html, css } from 'lit';
+import './components/navbar.js';
 import './main/encrypt.js';
 import './main/decrypt.js';
 import './main/matrix.js';
@@ -20,8 +21,11 @@ class MainElement extends LitElement {
 
   render() {
     return html`
-      <div class="layout">
-        <!-- repassamos decryptedText como 'value' em encrypt-form -->
+      <nav>
+        <navbar-element></navbar-element>
+      </nav>
+
+      <main>
         <encrypt-form
           .value=${this.decryptedText}
           @did-encrypt=${this._onEncrypted}
@@ -37,14 +41,14 @@ class MainElement extends LitElement {
           .matrix=${this.matrixKey}
           @did-decrypt=${this._onDecrypted}
         ></decrypt-form>
-      </div>
+      </main>
     `;
   }
 
   _onEncrypted(e) {
     this.encryptedText = e.detail.cryptotext;
     this.matrixKey     = e.detail.matrix; 
-    this.decryptedText = '';  // limpa resultado anterior
+    this.decryptedText = ''; 
   }
 
   _onMatrixProvided(e) {
@@ -56,7 +60,13 @@ class MainElement extends LitElement {
   }
 
   static styles = css`
-    .layout {
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100dvw;
+    }
+
+    main {
       display: flex;
       gap: 2rem;
       justify-content: space-around;
