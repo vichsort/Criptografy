@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { encryptText } from './process.js';
 
-class EncriptForm extends LitElement {
+class EncryptForm extends LitElement {
   static properties = {
     value: { type: String } 
   };
@@ -13,10 +13,12 @@ class EncriptForm extends LitElement {
 
   render() {
     return html`
+      <label for="input">To encrypt</label>
       <textarea
         id="input"
-        rows="4" cols="30"
-        placeholder="Texto a criptografar ou resultado da descriptografia"
+        rows="4" 
+        cols="30"
+        placeholder="Your unecrypted text goes here"
         .value=${this.value}
       ></textarea>
       <button @click=${this._encrypt}>Encrypt</button>
@@ -26,6 +28,7 @@ class EncriptForm extends LitElement {
   _encrypt() {
     const text = this.renderRoot.getElementById('input').value;
     const { cryptotext, matrix } = encryptText(text);
+    this.renderRoot.getElementById('input').value = '';
 
     this.dispatchEvent(new CustomEvent('did-encrypt', {
       detail: { cryptotext, matrix },
@@ -33,6 +36,26 @@ class EncriptForm extends LitElement {
       composed: true
     }));
   }
+
+  static styles = css`
+    textarea {
+      width: 100%;
+      font-family: monospace;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+      min-height: 5rem;
+      max-height: 20rem;
+    }
+    label {
+      font-weight: bold;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+  `;
 }
 
-customElements.define('encript-form', EncriptForm);
+customElements.define('encrypt-form', EncryptForm);

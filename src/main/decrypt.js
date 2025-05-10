@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { decryptText } from './process.js';
 
-class DecriptForm extends LitElement {
+class DecryptForm extends LitElement {
   static properties = {
     encrypted: { type: String },   
     matrix:    { type: Array }
@@ -15,11 +15,12 @@ class DecriptForm extends LitElement {
 
   render() {
     return html`
+      <label for="cipher">To decrypt</label>
       <textarea
         id="cipher"
         rows="4"
         cols="30"
-        placeholder="Texto criptografado"
+        placeholder="Your encrypted text goes here"
         .value=${this.encrypted}
       ></textarea>
 
@@ -48,10 +49,17 @@ class DecriptForm extends LitElement {
 
   static styles = css`
     textarea {
-      display: block;
-      margin-bottom: 1rem;
       width: 100%;
       font-family: monospace;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+      min-height: 5rem;
+      max-height: 20rem;
+    }
+    label {
+      font-weight: bold;
     }
     button {
       padding: 0.5rem 1rem;
@@ -64,4 +72,4 @@ class DecriptForm extends LitElement {
   `;
 }
 
-customElements.define('decript-form', DecriptForm);
+customElements.define('decrypt-form', DecryptForm);

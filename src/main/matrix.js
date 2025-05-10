@@ -1,10 +1,9 @@
-// src/main/matrix.js
 import { LitElement, html, css } from 'lit';
 
 class MatrixDisplay extends LitElement {
   static properties = {
-    matrix: { type: Array },    // recebe a matriz principal
-    rawInput: { type: String }  // string para edição manual
+    matrix: { type: Array },
+    rawInput: { type: String } 
   };
 
   constructor() {
@@ -14,7 +13,6 @@ class MatrixDisplay extends LitElement {
   }
 
   updated(changed) {
-    // Atualiza rawInput apenas se for diferente
     if (changed.has('matrix')) {
       const newRaw = this.matrixToString(this.matrix);
       if (newRaw !== this.rawInput) {
@@ -26,10 +24,12 @@ class MatrixDisplay extends LitElement {
   render() {
     return html`
       <div class="matrix-container">
-        <label for="matrix-input">Chave de Matriz (edite livremente):</label>
+        <label for="matrix-input">Matrix Key</label>
         <textarea
           id="matrix-input"
-          rows="6"
+          rows="4" 
+          cols="30"
+          placeholder="Your key goes here"
           .value=${this.rawInput}
           @input=${this._onRawInput}
         ></textarea>
@@ -44,20 +44,18 @@ class MatrixDisplay extends LitElement {
                   </div>
                 `
               )
-            : html`<div class="empty">Nenhuma chave disponível</div>`}
+            : html`<div class="empty">No key yet provided</div>`}
         </div>
       </div>
     `;
   }
 
-  // Converte array de matrizes para string editável
   matrixToString(matrixArr) {
     return matrixArr
       .map(m => `${m[0].join(',')}\n${m[1].join(',')}`)
       .join('\n---\n');
   }
 
-  // Trata entrada manual, parse e dispara evento
   _onRawInput(e) {
     const text = e.target.value;
     this.rawInput = text;
@@ -76,7 +74,6 @@ class MatrixDisplay extends LitElement {
         composed: true
       }));
     } catch (err) {
-      // parsing falhou, não dispara evento
       console.warn('MatrixDisplay: erro ao parsear entrada', err);
     }
   }
@@ -85,7 +82,6 @@ class MatrixDisplay extends LitElement {
     .matrix-container {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
       width: 100%;
     }
     label {
@@ -98,6 +94,8 @@ class MatrixDisplay extends LitElement {
       border: 1px solid #ccc;
       border-radius: 4px;
       resize: vertical;
+      min-height: 5rem;
+      max-height: 20rem;
     }
     .preview {
       display: flex;

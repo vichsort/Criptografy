@@ -1,7 +1,7 @@
 // src/main/main.js
 import { LitElement, html, css } from 'lit';
-import './main/encript.js';
-import './main/decript.js';
+import './main/encrypt.js';
+import './main/decrypt.js';
 import './main/matrix.js';
 
 class MainElement extends LitElement {
@@ -21,22 +21,22 @@ class MainElement extends LitElement {
   render() {
     return html`
       <div class="layout">
-        <!-- repassamos decryptedText como 'value' em encript-form -->
-        <encript-form
+        <!-- repassamos decryptedText como 'value' em encrypt-form -->
+        <encrypt-form
           .value=${this.decryptedText}
           @did-encrypt=${this._onEncrypted}
-        ></encript-form>
+        ></encrypt-form>
 
         <matrix-display
           .matrix=${this.matrixKey}
           @matrix-updated=${this._onMatrixProvided}
         ></matrix-display>
 
-        <decript-form
+        <decrypt-form
           .encrypted=${this.encryptedText}
           .matrix=${this.matrixKey}
           @did-decrypt=${this._onDecrypted}
-        ></decript-form>
+        ></decrypt-form>
       </div>
     `;
   }
