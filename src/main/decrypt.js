@@ -19,7 +19,7 @@ class DecryptForm extends LitElement {
       <textarea
         id="cipher"
         rows="4"
-        cols="30"
+        cols="10"
         placeholder="Your encrypted text goes here"
         .value=${this.encrypted}
       ></textarea>
@@ -48,23 +48,33 @@ class DecryptForm extends LitElement {
   }
 
   static styles = css`
+    :host {
+      display: flex;
+      flex-direction: column;
+    }
+
     textarea {
-      width: 100%;
+      width: 30dvw;
+      height: 45dvh;
       font-family: monospace;
       padding: 0.5rem;
       border: 1px solid #ccc;
       border-radius: 4px;
       resize: vertical;
-      min-height: 5rem;
-      max-height: 20rem;
+      min-height: 20rem;
+      max-height: 50rem;
     }
+
     label {
+      text-align: center;
       font-weight: bold;
     }
+
     button {
       padding: 0.5rem 1rem;
       cursor: pointer;
     }
+
     button[disabled] {
       opacity: 0.5;
       cursor: not-allowed;

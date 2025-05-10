@@ -10,15 +10,15 @@ class NavbarElement extends LitElement {
     static get styles() {
         return css`
             :host {
-                background-color: green;
-                padding: 1rem 6rem;
+                background-color: #242424;
+                padding: 0.2rem 0.2rem;
                 display: flex;
                 justify-content: center;
             }
 
             img {
-                width: 10rem;
-                height: 4rem;
+                width: 23rem;
+                height: 8rem;
             }
         `
     }

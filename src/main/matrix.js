@@ -23,29 +23,27 @@ class MatrixDisplay extends LitElement {
 
   render() {
     return html`
-      <div class="matrix-container">
-        <label for="matrix-input">Matrix Key</label>
-        <textarea
-          id="matrix-input"
-          rows="4" 
-          cols="30"
-          placeholder="Your key goes here"
-          .value=${this.rawInput}
-          @input=${this._onRawInput}
-        ></textarea>
+      <label for="matrix-input">Matrix Key</label>
+      <textarea
+        id="matrix-input"
+        rows="4" 
+        cols="30"
+        placeholder="Your key goes here"
+        .value=${this.rawInput}
+        @input=${this._onRawInput}
+      ></textarea>
 
-        <div class="preview">
-          ${this.matrix && this.matrix.length
-            ? this.matrix.map(
-                (m, i) => html`
-                  <div class="matrix-block">
-                    <div class="row">${m[0].join(', ')}</div>
-                    <div class="row">${m[1].join(', ')}</div>
-                  </div>
-                `
-              )
-            : html`<div class="empty">No key yet provided</div>`}
-        </div>
+      <div class="preview">
+        ${this.matrix && this.matrix.length
+          ? this.matrix.map(
+              (m, i) => html`
+                <div class="matrix-block">
+                  <div class="row">${m[0].join(', ')}</div>
+                  <div class="row">${m[1].join(', ')}</div>
+                </div>
+              `
+            )
+          : html`<div class="empty">No key yet provided</div>`}
       </div>
     `;
   }
@@ -79,32 +77,38 @@ class MatrixDisplay extends LitElement {
   }
 
   static styles = css`
-    .matrix-container {
+    :host {
       display: flex;
       flex-direction: column;
-      width: 100%;
     }
-    label {
-      font-weight: bold;
-    }
+
     textarea {
-      width: 100%;
+      width: 30dvw;
+      height: 45dvh;
       font-family: monospace;
       padding: 0.5rem;
       border: 1px solid #ccc;
       border-radius: 4px;
       resize: vertical;
-      min-height: 5rem;
-      max-height: 20rem;
+      min-height: 20rem;
+      max-height: 50rem;
     }
+
+    label {
+      text-align: center;
+      font-weight: bold;
+    }
+
     .preview {
       display: flex;
+      justify-content: center;
       flex-wrap: wrap;
       gap: 1rem;
       margin-top: 0.5rem;
       max-height: 200px;
       overflow-y: auto;
     }
+
     .matrix-block {
       background: #e6ffe6;
       color: black;
@@ -114,9 +118,11 @@ class MatrixDisplay extends LitElement {
       font-family: monospace;
       text-align: center;
     }
+
     .row {
       margin: 0;
     }
+
     .empty {
       color: #777;
       font-style: italic;
