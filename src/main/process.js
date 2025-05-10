@@ -1,73 +1,62 @@
-export function processForm(e, cript) {
-    e.preventDefault()
-    const form = e.target
+export function encryptText(text) {
+    const chars = text.split('');
+    if (chars.length % 2 !== 0) chars.push('.');
   
-    const formData = new FormData(form)
-    const value = formData.get("value")
-
-    if (cript == true) {
-        console.log("estamos encriptando");
-        encript(value);
-    } else {
-        console.log("estamos decriptando");
-        decript(value);
+    const pairs = [];
+    for (let i = 0; i < chars.length; i += 2) {
+      pairs.push([chars[i].charCodeAt(0), chars[i + 1].charCodeAt(0)]);
     }
+  
+    const keyMatrices = [];
+    const resultPairs = [];
+  
+    pairs.forEach(pair => {
+      const key = [
+        [rand(), rand()],
+        [rand(), rand()]
+      ];
+      keyMatrices.push(key);
+  
+      const [a, b] = pair;
+      const c0 = key[0][0] * a + key[0][1] * b;
+      const c1 = key[1][0] * a + key[1][1] * b;
+      resultPairs.push([c0, c1]);
+    });
+  
+    return {
+      cryptotext: JSON.stringify(resultPairs),
+      matrix: keyMatrices
+    };
 }
-
-function encript(val) {
-    console.log(val);
-
-    const arrayVal = val.split("");
-    if (arrayVal.length % 2 !== 0) {
-        arrayVal.push(".");
-    }
-
-    const matrix = [];
-    for (let i = 0; i < arrayVal.length; i += 2) {
-        matrix.push([arrayVal[i], arrayVal[i + 1]]);
-    }
-
-    const numMatrix = matrix.map(pair => pair.map(char => char.charCodeAt(0)));
-    const randMatrix = numMatrix.map(pair => pair.map(() => Math.floor(Math.random() * 20) + 1));
-
-    const criptMatrix = numMatrix.map((pair, i) =>
-        pair.map((num, j) => (num * randMatrix[i][j]).toString()).join(".")
-    ).join(".");
-
-    const criptKey = JSON.stringify(randMatrix);
-
-    console.log('Criptografado:', criptMatrix);
-    console.log('Chave:', criptKey);
+  
+export function decryptText(cryptotextJSON, keyMatrices) {
+    const cipherPairs = JSON.parse(cryptotextJSON);
+    const chars = [];
+  
+    cipherPairs.forEach((pair, idx) => {
+      const key = keyMatrices[idx];
+      const [[k11, k12], [k21, k22]] = key;
+      const det = k11 * k22 - k12 * k21;
+      if (det === 0) throw new Error('Matriz não invertível');
+      const invDet = 1 / det;
+  
+      const inv = [
+        [ k22 * invDet, -k12 * invDet ],
+        [ -k21 * invDet, k11 * invDet ]
+      ];
+  
+      const [c0, c1] = pair;
+      const p0 = Math.round(inv[0][0] * c0 + inv[0][1] * c1);
+      const p1 = Math.round(inv[1][0] * c0 + inv[1][1] * c1);
+  
+      chars.push(String.fromCharCode(p0), String.fromCharCode(p1));
+    });
+  
+    if (chars[chars.length - 1] === '.') chars.pop();
+    return chars.join('');
 }
-
-
-function decript(val) {
-    console.log(val);
-
-    let cript = val.split(".").map(Number);
-    let randMatrix = criptKey
-        .split(',. ') 
-        .map(linha => linha.split(', ').map(Number)); 
-
-    if (cript.length !== randMatrix.flat().length) {
-        console.error("Either your encripted text or your key is invalid.");
-        return;
-    }
-
-    let index = 0;
-    let matrix = [];
-    for (let i = 0; i < randMatrix.length; i++) {
-        let doubles = [];
-        for (let j = 0; j < randMatrix[i].length; j++) {
-        let originalNum = cript[indice] / randMatrix[i][j];
-        doubles.push(Math.round(originalNum)); // arredonda
-        index++;
-        }
-        matrix.push(doubles);
-    }
-
-    // converte essa porra
-    let ans = matrix.map(par => par.map(num => String.fromCharCode(num)).join("")).join("");
-
-    console.log("Frase descriptografada: ", ans);
+  
+function rand() {
+    return Math.floor(Math.random() * 25) + 1;
 }
+  

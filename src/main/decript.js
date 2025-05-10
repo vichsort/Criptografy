@@ -1,123 +1,67 @@
-import { LitElement, css, html } from 'lit'
-import { processForm } from './process.js'
+import { LitElement, html, css } from 'lit';
+import { decryptText } from './process.js';
 
 class DecriptForm extends LitElement {
-  static get properties() {
-    return {
-      type: { type: String },
-    }
-  }
+  static properties = {
+    encrypted: { type: String },   
+    matrix:    { type: Array }
+  };
 
   constructor() {
-    super()
-    this.type = 'Matrizes'
-  }
-
-  formSubmit(e) {
-    const finalData = processForm(e, false)
-    this.result = finalData
+    super();
+    this.encrypted = '';
+    this.matrix    = [];
   }
 
   render() {
     return html`
+      <textarea
+        id="cipher"
+        rows="4"
+        cols="30"
+        placeholder="Texto criptografado"
+        .value=${this.encrypted}
+      ></textarea>
 
-      <div class="card">
-        <div class="heading">
-          <h1>Decript by ${this.type}</h1>
-        </div>
-
-        <hr>
-
-        <form method="post" @submit=${this.formSubmit}>
-          <div class="form-head">
-            <label for="value" class="form-label">Decript</label>
-            <input
-              type="text"
-              class="form-control"
-              id="value"
-              name="value"
-              placeholder="aah"
-            />
-          </div>
-          <input type="submit" />
-        </form>
-      </div>
-    `
+      <button 
+        ?disabled=${!this.matrix || this.matrix.length === 0}
+        @click=${this._decrypt}
+      >
+        Decrypt
+      </button>
+    `;
   }
 
-  static get styles() {
-    return css`
-      :host {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 2rem;
-        text-align: center;
-      }
+  _decrypt() {
+    try {
+      const plaintext = decryptText(this.encrypted, this.matrix);
 
-      .logo {
-        height: 6em;
-        padding: 1.5em;
-        will-change: filter;
-        transition: filter 300ms;
-      }
-      .logo:hover {
-        filter: drop-shadow(0 0 2em #646cffaa);
-      }
-      .logo.lit:hover {
-        filter: drop-shadow(0 0 2em #325cffaa);
-      }
-
-      .card {
-        padding: 2em;
-      }
-
-      .read-the-docs {
-        color: #888;
-      }
-
-      a {
-        font-weight: 500;
-        color: #646cff;
-        text-decoration: inherit;
-      }
-      a:hover {
-        color: #535bf2;
-      }
-
-      ::slotted(h1) {
-        font-size: 3.2em;
-        line-height: 1.1;
-      }
-
-      button {
-        border-radius: 8px;
-        border: 1px solid transparent;
-        padding: 0.6em 1.2em;
-        font-size: 1em;
-        font-weight: 500;
-        font-family: inherit;
-        background-color: #1a1a1a;
-        cursor: pointer;
-        transition: border-color 0.25s;
-      }
-      button:hover {
-        border-color: #646cff;
-      }
-      button:focus,
-      button:focus-visible {
-        outline: 4px auto -webkit-focus-ring-color;
-      }
-
-      @media (prefers-color-scheme: light) {
-        a:hover {
-          color: #747bff;
-        }
-        button {
-          background-color: #f9f9f9;
-        }
-      }
-    `
+      this.dispatchEvent(new CustomEvent('did-decrypt', {
+        detail: { plaintext },
+        bubbles: true,
+        composed: true
+      }));
+    } catch (err) {
+      console.error('Erro ao descriptografar:', err);
+    }
   }
+
+  static styles = css`
+    textarea {
+      display: block;
+      margin-bottom: 1rem;
+      width: 100%;
+      font-family: monospace;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+    button[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  `;
 }
 
-window.customElements.define('decript-form', DecriptForm)
+customElements.define('decript-form', DecriptForm);

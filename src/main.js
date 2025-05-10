@@ -1,49 +1,68 @@
-import { LitElement, css, html } from 'lit';
+// src/main/main.js
+import { LitElement, html, css } from 'lit';
 import './main/encript.js';
 import './main/decript.js';
-import './components/navbar.js';
+import './main/matrix.js';
 
+class MainElement extends LitElement {
+  static properties = {
+    encryptedText: { type: String },
+    matrixKey:     { type: Array  },
+    decryptedText: { type: String }
+  };
 
-export class MainElement extends LitElement {
+  constructor() {
+    super();
+    this.encryptedText = '';
+    this.matrixKey     = [];
+    this.decryptedText = '';
+  }
+
   render() {
     return html`
-      <navbar>
-        <navbar-element></navbar-element>
-      </navbar>
-      
-      <main>
-        <encript-form></encript-form>
-        <decript-form></decript-form>
-      </main>
+      <div class="layout">
+        <!-- repassamos decryptedText como 'value' em encript-form -->
+        <encript-form
+          .value=${this.decryptedText}
+          @did-encrypt=${this._onEncrypted}
+        ></encript-form>
 
-    `
+        <matrix-display
+          .matrix=${this.matrixKey}
+          @matrix-updated=${this._onMatrixProvided}
+        ></matrix-display>
+
+        <decript-form
+          .encrypted=${this.encryptedText}
+          .matrix=${this.matrixKey}
+          @did-decrypt=${this._onDecrypted}
+        ></decript-form>
+      </div>
+    `;
   }
 
-  static get styles() {
-    return css`
-      :host {
-        display: flex;
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 2rem;
-        text-align: center;
-        flex-direction: column;
-        gap: 2rem;
-        justify-content: center;
-        align-items: flex-start;
-      }
-
-      main {
-        display: flex;
-      }
-
-      encript-form, decript-form {
-        border: 1px solid #ccc;
-        padding: 1rem;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-      }
-    `
+  _onEncrypted(e) {
+    this.encryptedText = e.detail.cryptotext;
+    this.matrixKey     = e.detail.matrix; 
+    this.decryptedText = '';  // limpa resultado anterior
   }
+
+  _onMatrixProvided(e) {
+    this.matrixKey = e.detail.matrix;
+  }
+
+  _onDecrypted(e) {
+    this.decryptedText = e.detail.plaintext;
+  }
+
+  static styles = css`
+    .layout {
+      display: flex;
+      gap: 2rem;
+      justify-content: space-around;
+      align-items: flex-start;
+    }
+  `;
 }
 
-window.customElements.define('main-element', MainElement)
+customElements.define('main-element', MainElement);
