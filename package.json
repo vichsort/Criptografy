@@ -1,7 +1,7 @@
 {
   "name": "criptografy",
-  "private": true,
-  "version": "1.0.0",
+  "private": false,
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
