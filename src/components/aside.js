@@ -1,30 +1,63 @@
-import { LitElement, css, html } from 'lit';
+// src/components/aside.js
+import { LitElement, html, css } from 'lit';
 
-class AsideElement extends LitElement {
-    render() {
-        return html`
-            <a href="#">Enctypt by Matrix</a>
-            <a href="#">Encypt by Cipher of Ceasar</a>
-            <a href="#">Encypt by Assimetric key</a>
-            <a href="#">Encypt by Hash</a>
-        `;
-    }
-    
-    static get styles() {
-        return css`
-            :host {
-                background-color: green;
-                padding: 1rem 6rem;
-                display: flex;
-                justify-content: center;
-            }
+class AsideMenu extends LitElement {
+  static properties = {
+    items:  { type: Array },
+    active: { type: String }
+  };
 
-            img {
-                width: 10rem;
-                height: 4rem;
-            }
-        `
+  constructor() {
+    super();
+    this.items = [];
+    this.active = '';
+  }
+
+  render() {
+    return html`
+      <aside>
+        ${this.items.map(item => html`
+          <button
+            class=${item.id === this.active ? 'active' : ''}
+            @click=${() => this._select(item.id)}
+          >
+            ${item.label}
+          </button>
+        `)}
+      </aside>
+    `;
+  }
+
+  _select(id) {
+    this.dispatchEvent(new CustomEvent('view-change', {
+      detail: { viewId: id },
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  static styles = css`
+    aside {
+      width: var(--sidebar-width);
+      background: #f4f4f4;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
+    button {
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button.active {
+      font-weight: bold;
+      background: #ddd;
+    }
+  `;
 }
 
-window.customElements.define('aside-element', AsideElement)
+customElements.define('aside-menu', AsideMenu);

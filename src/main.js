@@ -1,83 +1,90 @@
-// src/main/main.js
 import { LitElement, html, css } from 'lit';
 import './components/navbar.js';
-import './main/encrypt.js';
-import './main/decrypt.js';
-import './main/matrix.js';
+import './components/footer.js';
+import './components/aside.js';  // o menu lateral
 
-class MainElement extends LitElement {
+class AppShell extends LitElement {
   static properties = {
-    encryptedText: { type: String },
-    matrixKey:     { type: Array  },
-    decryptedText: { type: String }
+    activeView: { type: String },
+    _viewTemplate: { state: true }
   };
 
   constructor() {
     super();
-    this.encryptedText = '';
-    this.matrixKey     = [];
-    this.decryptedText = '';
+    this.activeView = 'matrix';   // view inicial
+    this._viewTemplate = html``;
   }
 
   render() {
     return html`
-      <nav>
-        <navbar-element></navbar-element>
-      </nav>
+      <navbar-element></navbar-element>
 
-      <main>
-        <encrypt-form
-          .value=${this.decryptedText}
-          @did-encrypt=${this._onEncrypted}
-        ></encrypt-form>
+      <div class="layout">
+        <aside-menu 
+          .items=${[
+            { id: 'matrix', label: 'Hill Cipher' },
+            { id: 'cesar',  label: 'Cifra de César' },
+            { id: 'rsa',    label: 'RSA' }
+          ]}
+          .active=${this.activeView}
+          @view-change=${this._onViewChange}
+        ></aside-menu>
 
-        <matrix-display
-          .matrix=${this.matrixKey}
-          @matrix-updated=${this._onMatrixProvided}
-        ></matrix-display>
+        <main class="content">
+          ${this._viewTemplate}
+        </main>
+      </div>
 
-        <decrypt-form
-          .encrypted=${this.encryptedText}
-          .matrix=${this.matrixKey}
-          @did-decrypt=${this._onDecrypted}
-        ></decrypt-form>
-      </main>
+      <footer-element></footer-element>
     `;
   }
 
-  _onEncrypted(e) {
-    this.encryptedText = e.detail.cryptotext;
-    this.matrixKey     = e.detail.matrix; 
-    this.decryptedText = ''; 
+  updated(changed) {
+    if (changed.has('activeView')) {
+      this._loadView(this.activeView);
+    }
   }
 
-  _onMatrixProvided(e) {
-    this.matrixKey = e.detail.matrix;
+  async _loadView(viewId) {
+    this._viewTemplate = html`<p>Carregando ${viewId}…</p>`;
+    let tpl;
+    switch (viewId) {
+      case 'matrix':
+        await import('./pages/matrix.js');
+        tpl = html`<matrix-page></matrix-page>`;
+        break;
+      case 'cesar':
+        await import('./pages/cesar.js');
+        tpl = html`<cesar-page></cesar-page>`;
+        break;
+      case 'rsa':
+        await import('./pages/rsa.js');
+        tpl = html`<rsa-page></rsa-page>`;
+        break;
+      default:
+        tpl = html`<p>View não encontrada</p>`;
+    }
+    this._viewTemplate = tpl;
   }
 
-  _onDecrypted(e) {
-    this.decryptedText = e.detail.plaintext;
+  _onViewChange(e) {
+    this.activeView = e.detail.viewId;
   }
 
   static styles = css`
     :host {
-      width: 100%;
-      height: 100%;
+      display: block;
+      min-height: 100vh;
+      --sidebar-width: 240px;
     }
-
-    nav {
-      position: fixed;
-      top: 0;
-      width: 100dvw;
-    }
-
-    main {
+    .layout {
       display: flex;
-      gap: 2rem;
-      justify-content: space-around;
-      align-items: flex-start;
+    }
+    main.content {
+      flex: 1;
+      padding: 1rem;
     }
   `;
 }
 
-customElements.define('main-element', MainElement);
+customElements.define('app-shell', AppShell);

@@ -6,3 +6,19 @@ For any help you may need, contact `vichsort@proton.me`.
 
 # Version
 Current version operating: 1.0 'Mino'.
+
+# Work Purposes:
+src/
+├── components/ (padrão em todos)
+│   └── aside.js
+│   └── navbar.js 
+│   └── footer.js 
+├── contents/ (filhos de cada page)
+│   └── matrix/ 
+│   └── cesar/ 
+│   └── rsa/ 
+├── pages/ (páginas em si)
+│   ├── matrix.js
+│   ├── cesar.js
+│   └── rsa.js
+└── main.js (render de tudo)
