@@ -8,6 +8,7 @@ For any help you may need, contact `vichsort@proton.me`.
 Current version operating: 1.0 'Mino'.
 
 # Work Purposes:
+```text
 src/
 ├── components/ (padrão em todos)
 │   └── aside.js
@@ -22,3 +23,4 @@ src/
 │   ├── cesar.js
 │   └── rsa.js
 └── main.js (render de tudo)
+```

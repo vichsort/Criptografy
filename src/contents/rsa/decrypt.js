@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { decryptText } from './process.js';
 
-class DecryptForm extends LitElement {
+class RsaDecrypt extends LitElement {
   static properties = {
     encrypted: { type: String },   
     matrix:    { type: Array }
@@ -82,4 +82,4 @@ class DecryptForm extends LitElement {
   `;
 }
 
-customElements.define('decrypt-form', DecryptForm);
+customElements.define('rsa-decrypt', RsaDecrypt);

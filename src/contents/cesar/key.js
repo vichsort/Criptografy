@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 
-class MatrixDisplay extends LitElement {
+class CesarKey extends LitElement {
   static properties = {
     matrix: { type: Array },
     rawInput: { type: String } 
@@ -72,7 +72,7 @@ class MatrixDisplay extends LitElement {
         composed: true
       }));
     } catch (err) {
-      console.warn('MatrixDisplay: erro ao parsear entrada', err);
+      console.warn('KeyDisplay: erro ao parsear entrada', err);
     }
   }
 
@@ -130,4 +130,4 @@ class MatrixDisplay extends LitElement {
   `;
 }
 
-customElements.define('matrix-display', MatrixDisplay);
+customElements.define('cesar-key', CesarKey);

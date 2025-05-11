@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { encryptText } from './process.js';
 
-class EncryptForm extends LitElement {
+class CesarEncrypt extends LitElement {
   static properties = {
     value: { type: String } 
   };
@@ -68,4 +68,4 @@ class EncryptForm extends LitElement {
   `;
 }
 
-customElements.define('encrypt-form', EncryptForm);
+customElements.define('cesar-encrypt', CesarEncrypt);
