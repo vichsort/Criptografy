@@ -6,7 +6,6 @@ use App\Cryptography\AlgorithmNotFoundException;
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
 use App\Cryptography\Registry;
-use LogicException;
 use PHPUnit\Framework\TestCase;
 
 final class RegistryTest extends TestCase
@@ -54,14 +53,14 @@ final class RegistryTest extends TestCase
         $this->assertContains('vigenere', $ids);
     }
 
-    public function test_all_rejects_algorithms_that_do_not_describe_themselves(): void
+    public function test_register_rejects_algorithms_that_do_not_implement_describes_algorithm(): void
     {
         $registry = new Registry();
+
+        $this->expectException(\TypeError::class);
+
+        /** @phpstan-ignore-next-line */
         $registry->register('broken', new class {});
-
-        $this->expectException(LogicException::class);
-
-        $registry->all();
     }
 
     private function fakeAlgorithm(string $id): DescribesAlgorithm

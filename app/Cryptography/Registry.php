@@ -4,7 +4,6 @@ namespace App\Cryptography;
 
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
-use LogicException;
 
 /**
  * Associa um identificador estável (ex.: "caesar", "vigenere") à sua
@@ -17,10 +16,10 @@ use LogicException;
  */
 final class Registry
 {
-    /** @var array<string, object> */
+    /** @var array<string, DescribesAlgorithm> */
     private array $algorithms = [];
 
-    public function register(string $id, object $algorithm): void
+    public function register(string $id, DescribesAlgorithm $algorithm): void
     {
         $this->algorithms[$id] = $algorithm;
     }
@@ -33,7 +32,7 @@ final class Registry
     /**
      * @throws AlgorithmNotFoundException
      */
-    public function get(string $id): object
+    public function get(string $id): DescribesAlgorithm
     {
         return $this->algorithms[$id] ?? throw new AlgorithmNotFoundException($id);
     }
@@ -48,17 +47,7 @@ final class Registry
     public function all(): array
     {
         return array_values(array_map(
-            function (object $algorithm): AlgorithmMetadata {
-                if (! $algorithm instanceof DescribesAlgorithm) {
-                    throw new LogicException(sprintf(
-                        '%s deve implementar %s para ser registrado.',
-                        $algorithm::class,
-                        DescribesAlgorithm::class,
-                    ));
-                }
-
-                return $algorithm->describe();
-            },
+            static fn (DescribesAlgorithm $algorithm): AlgorithmMetadata => $algorithm->describe(),
             $this->algorithms,
         ));
     }
