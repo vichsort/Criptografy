@@ -24,7 +24,7 @@
 
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="APP_KEY" value="base64:0000000000000000000000000000000000000000A="/>
+        <env name="APP_KEY" value="base64:YH6/5wCbgkSy2fmmUZ1rFS+kilo8QX+iVDhng1rzGGM="/>
         <env name="APP_DEBUG" value="true"/>
         <env name="CACHE_STORE" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
