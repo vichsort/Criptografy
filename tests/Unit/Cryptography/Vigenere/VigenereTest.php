@@ -82,6 +82,24 @@ final class VigenereTest extends TestCase
         $this->vigenere->encrypt('abc', ['key' => 'LE MON123']);
     }
 
+    public function test_empty_input_returns_empty_string(): void
+    {
+        $this->assertSame('', $this->vigenere->encrypt('', ['key' => 'SECRET']));
+        $this->assertSame('', $this->vigenere->decrypt('', ['key' => 'SECRET']));
+    }
+
+    public function test_unicode_and_accented_characters_are_preserved(): void
+    {
+        $plain = 'Mensagem com acentuação: café & pão! 🔒';
+        $encrypted = $this->vigenere->encrypt($plain, ['key' => 'CHAVE']);
+        $decrypted = $this->vigenere->decrypt($encrypted, ['key' => 'CHAVE']);
+
+        $this->assertSame($plain, $decrypted);
+        $this->assertStringContainsString('é', $encrypted);
+        $this->assertStringContainsString('ã', $encrypted);
+        $this->assertStringContainsString('🔒', $encrypted);
+    }
+
     public function test_describes_itself_with_stable_metadata(): void
     {
         $metadata = $this->vigenere->describe();

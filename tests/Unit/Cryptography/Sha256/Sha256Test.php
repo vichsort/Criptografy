@@ -45,6 +45,23 @@ final class Sha256Test extends TestCase
         );
     }
 
+    public function test_empty_string_produces_nist_empty_digest(): void
+    {
+        // Vetor padrão NIST para string vazia
+        $this->assertSame(
+            'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+            $this->sha256->hash(''),
+        );
+    }
+
+    public function test_hashes_unicode_characters(): void
+    {
+        $this->assertSame(
+            hash('sha256', 'Café & Pão 🚀'),
+            $this->sha256->hash('Café & Pão 🚀'),
+        );
+    }
+
     public function test_describes_itself_as_hashing_without_encryption_support(): void
     {
         $metadata = $this->sha256->describe();

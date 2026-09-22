@@ -34,6 +34,19 @@ final class Base64Test extends TestCase
         $this->base64->decode('isto não é base64 válido !!!');
     }
 
+    public function test_encode_and_decode_empty_string(): void
+    {
+        $this->assertSame('', $this->base64->encode(''));
+        $this->assertSame('', $this->base64->decode(''));
+    }
+
+    public function test_handles_emojis_and_multibyte(): void
+    {
+        $emoji = '🔑 Criptografia 🌐';
+
+        $this->assertSame($emoji, $this->base64->decode($this->base64->encode($emoji)));
+    }
+
     public function test_describes_itself_as_encoding_without_security_properties(): void
     {
         $metadata = $this->base64->describe();

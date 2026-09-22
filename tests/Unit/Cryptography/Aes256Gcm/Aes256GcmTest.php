@@ -71,6 +71,33 @@ final class Aes256GcmTest extends TestCase
         $this->aes->decrypt('nao-e-base64-nem-de-longe!!', ['key' => 'chave']);
     }
 
+    public function test_handles_empty_input_string(): void
+    {
+        $options = ['key' => 'minha-chave'];
+        $cipher = $this->aes->encrypt('', $options);
+
+        $this->assertNotEmpty($cipher);
+        $this->assertSame('', $this->aes->decrypt($cipher, $options));
+    }
+
+    public function test_handles_unicode_and_emojis(): void
+    {
+        $options = ['key' => 'chave-com-acentuação-🔑'];
+        $plain = 'Mensagem com símbolos complexos: 日本語, 🔐, äëïöü!';
+        $cipher = $this->aes->encrypt($plain, $options);
+
+        $this->assertSame($plain, $this->aes->decrypt($cipher, $options));
+    }
+
+    public function test_handles_large_data(): void
+    {
+        $options = ['key' => 'chave-teste'];
+        $plain = str_repeat('Bloco de 64 bytes para teste de volume criptográfico em memória! ', 1000); // ~64 KB
+        $cipher = $this->aes->encrypt($plain, $options);
+
+        $this->assertSame($plain, $this->aes->decrypt($cipher, $options));
+    }
+
     public function test_describes_itself_with_stable_metadata(): void
     {
         $metadata = $this->aes->describe();

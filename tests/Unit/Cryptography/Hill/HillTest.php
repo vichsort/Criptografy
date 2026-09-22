@@ -103,6 +103,27 @@ final class HillTest extends TestCase
         $this->hill->decrypt('ABC', $this->key2x2);
     }
 
+    public function test_empty_input_returns_empty_string(): void
+    {
+        $this->assertSame('', $this->hill->encrypt('', $this->key2x2));
+        $this->assertSame('', $this->hill->decrypt('', $this->key2x2));
+    }
+
+    public function test_unicode_and_accented_characters_are_stripped(): void
+    {
+        // Hill opera estritamente com letras ASCII A-Z em blocos; símbolos são descartados.
+        $this->assertSame(
+            $this->hill->encrypt('HELP', $this->key2x2),
+            $this->hill->encrypt('H E L P ! 🚀', $this->key2x2),
+        );
+
+        // Acentos (não-ASCII) são descartados; 'HéLp' vira 'HLP' que recebe padding 'X' => 'HLPX'
+        $this->assertSame(
+            $this->hill->encrypt('HLPX', $this->key2x2),
+            $this->hill->encrypt('HéLp', $this->key2x2),
+        );
+    }
+
     public function test_describes_itself_with_stable_metadata(): void
     {
         $metadata = $this->hill->describe();

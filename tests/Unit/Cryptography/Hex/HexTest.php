@@ -46,6 +46,18 @@ final class HexTest extends TestCase
         $this->assertSame('', $this->hex->decode(''));
     }
 
+    public function test_encodes_empty_string_returns_empty_string(): void
+    {
+        $this->assertSame('', $this->hex->encode(''));
+    }
+
+    public function test_handles_unicode_multibyte(): void
+    {
+        $original = 'café ☕ 123';
+
+        $this->assertSame($original, $this->hex->decode($this->hex->encode($original)));
+    }
+
     public function test_describes_itself_as_encoding_without_security_properties(): void
     {
         $metadata = $this->hex->describe();

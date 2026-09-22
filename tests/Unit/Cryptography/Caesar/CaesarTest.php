@@ -95,6 +95,24 @@ final class CaesarTest extends TestCase
         $this->caesar->encrypt('abc', ['shift' => 'not-a-number']);
     }
 
+    public function test_empty_input_returns_empty_string(): void
+    {
+        $this->assertSame('', $this->caesar->encrypt('', ['shift' => 5]));
+        $this->assertSame('', $this->caesar->decrypt('', ['shift' => 5]));
+    }
+
+    public function test_unicode_and_accented_characters_are_preserved(): void
+    {
+        $plain = 'Olá, mundo! Criptografia avançada: 100% 🚀';
+        $encrypted = $this->caesar->encrypt($plain, ['shift' => 3]);
+        $decrypted = $this->caesar->decrypt($encrypted, ['shift' => 3]);
+
+        $this->assertSame($plain, $decrypted);
+        $this->assertStringContainsString('á', $encrypted);
+        $this->assertStringContainsString('ç', $encrypted);
+        $this->assertStringContainsString('🚀', $encrypted);
+    }
+
     public function test_describes_itself_with_stable_metadata(): void
     {
         $metadata = $this->caesar->describe();
