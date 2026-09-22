@@ -124,4 +124,52 @@ final class HashEncodeDecodeTest extends TestCase
             $ids,
         );
     }
+
+    public function test_hashes_empty_string_using_sha256(): void
+    {
+        $response = $this->postJson('/api/hash', [
+            'algorithm' => 'sha-256',
+            'input' => '',
+        ]);
+
+        $response->assertOk();
+        $response->assertJson(['result' => 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855']);
+    }
+
+    public function test_encodes_and_decodes_empty_string_using_base64(): void
+    {
+        $encodeResponse = $this->postJson('/api/encode', [
+            'algorithm' => 'base64',
+            'input' => '',
+        ]);
+
+        $encodeResponse->assertOk();
+        $encodeResponse->assertJson(['result' => '']);
+
+        $decodeResponse = $this->postJson('/api/decode', [
+            'algorithm' => 'base64',
+            'input' => '',
+        ]);
+
+        $decodeResponse->assertOk();
+        $decodeResponse->assertJson(['result' => '']);
+    }
+
+    public function test_unicode_encode_decode_roundtrip_through_http(): void
+    {
+        $payload = 'Café com bolo ☕ 100% 🚀';
+
+        $encoded = $this->postJson('/api/encode', [
+            'algorithm' => 'base64',
+            'input' => $payload,
+        ])->json('result');
+
+        $decoded = $this->postJson('/api/decode', [
+            'algorithm' => 'base64',
+            'input' => $encoded,
+        ]);
+
+        $decoded->assertOk();
+        $decoded->assertJson(['result' => $payload]);
+    }
 }

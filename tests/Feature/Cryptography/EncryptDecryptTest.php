@@ -126,4 +126,48 @@ final class EncryptDecryptTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonValidationErrors('algorithm');
     }
+
+    public function test_null_input_fails_request_validation(): void
+    {
+        $response = $this->postJson('/api/encrypt', [
+            'algorithm' => 'caesar',
+            'input' => null,
+            'options' => ['shift' => 3],
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('input');
+    }
+
+    public function test_empty_string_input_is_accepted(): void
+    {
+        $response = $this->postJson('/api/encrypt', [
+            'algorithm' => 'caesar',
+            'input' => '',
+            'options' => ['shift' => 3],
+        ]);
+
+        $response->assertOk();
+        $response->assertJson(['result' => '']);
+    }
+
+    public function test_unicode_payload_roundtrip_through_http(): void
+    {
+        $payload = 'Atenção 123! Chave secreta: 🔑';
+
+        $encrypted = $this->postJson('/api/encrypt', [
+            'algorithm' => 'aes-256-gcm',
+            'input' => $payload,
+            'options' => ['key' => 'senha-forte'],
+        ])->json('result');
+
+        $decrypted = $this->postJson('/api/decrypt', [
+            'algorithm' => 'aes-256-gcm',
+            'input' => $encrypted,
+            'options' => ['key' => 'senha-forte'],
+        ]);
+
+        $decrypted->assertOk();
+        $decrypted->assertJson(['result' => $payload]);
+    }
 }

@@ -16,8 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
+        $middleware->trimStrings(except: [
+            'input',
+        ]);
+
+        $middleware->convertEmptyStringsToNull(except: [
+            fn (Request $request) => $request->is('api/*'),
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
