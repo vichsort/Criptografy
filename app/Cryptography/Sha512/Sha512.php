@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Cryptography\Sha512;
+
+use App\Cryptography\Contracts\AlgorithmMetadata;
+use App\Cryptography\Contracts\DescribesAlgorithm;
+use App\Cryptography\Contracts\HashAlgorithm;
+
+/**
+ * SHA-512 via hash() nativo do PHP — mesmo raciocínio do Sha256 (Seção 13).
+ * Mantido como módulo próprio (não uma variação parametrizada de Sha256)
+ * porque cada algoritmo é um módulo autocontido (Seção 7); a duplicação
+ * aqui é mínima e a separação é mais clara que uma abstração prematura
+ * (Seção 21).
+ */
+final class Sha512 implements HashAlgorithm, DescribesAlgorithm
+{
+    public function hash(string $input, array $options = []): string
+    {
+        return hash('sha512', $input);
+    }
+
+    public function describe(): AlgorithmMetadata
+    {
+        return new AlgorithmMetadata(
+            id: 'sha-512',
+            name: 'SHA-512',
+            category: 'hashing',
+            description: 'Função de hash criptográfico unidirecional (512 bits), via implementação nativa e confiável do PHP.',
+            supportsEncryption: false,
+            supportsDecryption: false,
+            supportsHashing: true,
+            requiresKey: false,
+            securityLevel: 'modern',
+        );
+    }
+}
