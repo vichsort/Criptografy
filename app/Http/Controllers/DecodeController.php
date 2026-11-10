@@ -25,6 +25,6 @@ final class DecodeController extends Controller
 
         $result = $algorithm->decode($request->string('input')->toString());
 
-        return response()->json(['result' => $result]);
+        return $this->result($result);
     }
 }

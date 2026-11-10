@@ -28,6 +28,6 @@ final class DecryptController extends Controller
             $request->options(),
         );
 
-        return response()->json(['result' => $result]);
+        return $this->result($result);
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Cryptography\AlgorithmNotFoundException;
 use App\Cryptography\Contracts\InvalidAlgorithmOptionsException;
+use App\Cryptography\NonTextResultException;
 use App\Cryptography\UnsupportedOperationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -42,6 +43,12 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (UnsupportedOperationException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+        });
+
+        $exceptions->render(function (NonTextResultException $e, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json(['message' => $e->getMessage()], 422);
             }

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Cryptography;
 
+use App\Cryptography\Aes256Gcm\Aes256Gcm;
 use Tests\TestCase;
 
 final class HashEncodeDecodeTest extends TestCase
@@ -171,5 +172,43 @@ final class HashEncodeDecodeTest extends TestCase
 
         $decoded->assertOk();
         $decoded->assertJson(['result' => $payload]);
+    }
+
+    public function test_hex_decode_producing_non_utf8_bytes_returns_422(): void
+    {
+        $response = $this->postJson('/api/decode', [
+            'algorithm' => 'hex',
+            'input' => 'ff',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonPath('message', fn (string $message) => str_contains($message, 'UTF-8'));
+    }
+
+    public function test_base64_decode_producing_non_utf8_bytes_returns_422(): void
+    {
+        $response = $this->postJson('/api/decode', [
+            'algorithm' => 'base64',
+            'input' => '/w==',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonPath('message', fn (string $message) => str_contains($message, 'UTF-8'));
+    }
+
+    public function test_aes_decrypt_producing_non_utf8_bytes_returns_422(): void
+    {
+        // Ciphertext gerado fora da API (ex.: por outra ferramenta) com
+        // plaintext binário — a API não consegue representá-lo em JSON.
+        $ciphertext = (new Aes256Gcm())->encrypt("\xff\xfe", ['key' => 'k']);
+
+        $response = $this->postJson('/api/decrypt', [
+            'algorithm' => 'aes-256-gcm',
+            'input' => $ciphertext,
+            'options' => ['key' => 'k'],
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonPath('message', fn (string $message) => str_contains($message, 'UTF-8'));
     }
 }

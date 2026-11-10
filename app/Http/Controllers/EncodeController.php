@@ -25,6 +25,6 @@ final class EncodeController extends Controller
 
         $result = $algorithm->encode($request->string('input')->toString());
 
-        return response()->json(['result' => $result]);
+        return $this->result($result);
     }
 }

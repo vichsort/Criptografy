@@ -28,6 +28,6 @@ final class EncryptController extends Controller
             $request->options(),
         );
 
-        return response()->json(['result' => $result]);
+        return $this->result($result);
     }
 }
