@@ -21,6 +21,15 @@ return Application::configure(basePath: dirname(__DIR__))
         then: fn () => Route::middleware('api')->group(__DIR__.'/../routes/status.php'),
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Em produção (Render) toda requisição chega pelo proxy da
+        // plataforma. Confiar no X-Forwarded-For faz $request->ip() ser o IP
+        // real do cliente, o que o rate limit abaixo precisa. Só é seguro
+        // porque a aplicação nunca fica exposta sem um proxy na frente.
+        $middleware->trustProxies(at: '*');
+
+        // Limite por IP definido em AppServiceProvider (RateLimiter "api").
+        $middleware->throttleApi();
+
         $middleware->trimStrings(except: [
             'input',
         ]);

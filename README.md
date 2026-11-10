@@ -35,6 +35,7 @@ HTTP JSON Response (ou Exception Handler global traduzindo exceções de domíni
 * **Registry Centralizado (`App\Cryptography\Registry`)**: Mapeia identificadores de algoritmos (`'caesar'`, `'aes-256-gcm'`, etc.) para suas instâncias. Restringe os registros estritamente a implementações de `DescribesAlgorithm`.
 * **Provedor de Serviço (`App\Providers\CryptographyServiceProvider`)**: Único ponto do sistema que conhece todos os algoritmos ativos e os registra no `Registry`, garantindo aderência ao princípio Open/Closed (OCP).
 * **Tratamento de Exceções Global (`bootstrap/app.php`)**: Exceções de domínio herdam de `InvalidAlgorithmOptionsException` ou `AlgorithmNotFoundException` e são convertidas automaticamente em respostas HTTP (422 e 404), mantendo os controllers limpos de status codes HTTP. Toda resposta de erro em `/api/*` é JSON, mesmo sem o header `Accept: application/json`, e erros causados pela entrada do cliente não são registrados no log.
+* **Rate Limit e Proxy (`bootstrap/app.php`, `AppServiceProvider`)**: As rotas da API são limitadas por IP (`API_RATE_LIMIT`, padrão 60/min; acima disso, 429). O `X-Forwarded-For` é confiável para que o IP real do cliente seja usado atrás do proxy da plataforma de hospedagem.
 * **Integridade de Entrada (`bootstrap/app.php`)**: O campo `input` é explicitamente protegido contra sanitizações automáticas (`TrimStrings` e `ConvertEmptyStringsToNull`). Em criptografia, espaços e strings vazias são dados significativos (como o hash NIST de string vazia).
 
 ---
