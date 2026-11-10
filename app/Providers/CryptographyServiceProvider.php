@@ -11,6 +11,7 @@ use App\Cryptography\Registry;
 use App\Cryptography\Sha256\Sha256;
 use App\Cryptography\Sha512\Sha512;
 use App\Cryptography\Vigenere\Vigenere;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -23,7 +24,7 @@ final class CryptographyServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(Registry::class, function ($app): Registry {
+        $this->app->singleton(Registry::class, function (Application $app): Registry {
             $registry = new Registry;
 
             $registry->register($app->make(Caesar::class));

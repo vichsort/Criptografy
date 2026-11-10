@@ -1,0 +1,14 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    # Known typing debt in the tests (mostly JSON values read as mixed).
+    # New errors still fail the build; shrink this file over time.
+    - phpstan-baseline.neon
+
+parameters:
+    paths:
+        - app
+        - bootstrap/app.php
+        - config
+        - routes
+        - tests
+    level: max

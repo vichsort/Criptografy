@@ -96,7 +96,7 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
     {
         $result = '';
 
-        foreach (array_chunk($letters, $blockSize) as $block) {
+        foreach (array_chunk($letters, max(1, $blockSize)) as $block) {
             $vector = array_map(
                 static fn (string $letter): int => ord($letter) - ord('A'),
                 $block,
@@ -196,11 +196,13 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
         $inverse = [];
 
         for ($i = 0; $i < $size; $i++) {
-            $inverse[$i] = [];
+            $row = [];
 
             for ($j = 0; $j < $size; $j++) {
-                $inverse[$i][$j] = $this->mod($determinantInverse * $adjugate[$i][$j], $modulus);
+                $row[] = $this->mod($determinantInverse * $adjugate[$i][$j], $modulus);
             }
+
+            $inverse[] = $row;
         }
 
         return $inverse;
@@ -269,12 +271,14 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
         $cofactors = [];
 
         for ($i = 0; $i < $size; $i++) {
-            $cofactors[$i] = [];
+            $row = [];
 
             for ($j = 0; $j < $size; $j++) {
                 $sign = (($i + $j) % 2 === 0) ? 1 : -1;
-                $cofactors[$i][$j] = $sign * $this->determinant($this->minor($matrix, $i, $j));
+                $row[] = $sign * $this->determinant($this->minor($matrix, $i, $j));
             }
+
+            $cofactors[] = $row;
         }
 
         return $cofactors;
@@ -318,11 +322,10 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
     private function transpose(array $matrix): array
     {
         $transposed = [];
+        $size = count($matrix);
 
-        foreach ($matrix as $i => $row) {
-            foreach ($row as $j => $value) {
-                $transposed[$j][$i] = $value;
-            }
+        for ($j = 0; $j < $size; $j++) {
+            $transposed[] = array_column($matrix, $j);
         }
 
         return $transposed;
