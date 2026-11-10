@@ -178,3 +178,9 @@ docker run --rm -e PORT=8080 -p 8080:8080 criptografy-api
 ```
 
 On Render: create a **Web Service** with the **Docker** runtime pointing to this repository, and use `/up` as the *Health Check Path*. The API uses no sessions or cookies, so `APP_KEY` is not required for the current setup.
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE).
