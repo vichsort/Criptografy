@@ -112,3 +112,18 @@ php artisan serve
 ```bash
 php artisan test
 ```
+
+---
+
+## Deploy (Docker / Render)
+
+A imagem (`Dockerfile`) usa `php:8.3-apache`, instala apenas dependências de produção e escuta na porta definida pela variável `PORT` (injetada pelo Render; padrão `8080`). Na inicialização, `docker/start.sh` gera os caches de config e rotas.
+
+Padrões já definidos na imagem: `APP_ENV=production`, `APP_DEBUG=false`, `LOG_CHANNEL=stderr`, `CACHE_STORE=file`, `SESSION_DRIVER=array`.
+
+```bash
+docker build -t criptografy-api .
+docker run --rm -e PORT=8080 -p 8080:8080 criptografy-api
+```
+
+No Render: criar um **Web Service** com runtime **Docker** apontando para este repositório e usar `/up` como *Health Check Path*. A API não usa sessão nem cookies, então `APP_KEY` não é necessária para o funcionamento atual.
