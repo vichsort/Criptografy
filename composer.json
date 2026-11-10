@@ -1,8 +1,8 @@
 {
     "name": "criptografy/criptografy",
     "type": "project",
-    "description": "Aplicacao educacional e demonstrativa de criptografia, hashing e encoding, construida em Laravel + React/TypeScript.",
-    "keywords": ["laravel", "cryptography", "education", "inertia"],
+    "description": "API REST educacional de criptografia, hashing e encoding, construida em Laravel.",
+    "keywords": ["laravel", "api", "cryptography", "education"],
     "license": "MIT",
     "require": {
         "php": "^8.3",

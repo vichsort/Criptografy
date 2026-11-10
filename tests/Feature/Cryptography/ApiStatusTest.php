@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Cryptography;
 
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 final class ApiStatusTest extends TestCase
@@ -33,6 +34,14 @@ final class ApiStatusTest extends TestCase
 
         $response->assertOk();
         $this->assertFalse($response->headers->has('Set-Cookie'));
+    }
+
+    public function test_local_storage_files_are_not_served_over_http(): void
+    {
+        // A API não armazena arquivos; as rotas storage/{path} (GET e PUT)
+        // que o Laravel registra para o disco "local" não têm uso aqui.
+        $this->assertFalse(Route::has('storage.local'));
+        $this->assertFalse(Route::has('storage.local.upload'));
     }
 
     public function test_api_allows_cors_preflight_requests(): void
