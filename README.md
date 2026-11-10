@@ -175,7 +175,7 @@ composer audit               # known vulnerabilities in dependencies
 vendor/bin/phpunit           # Unit, Feature and Contract suites
 ```
 
-`phpstan-baseline.neon` holds the known typing debt of the test suite (production code has none). New errors fail the build; the baseline should only shrink.
+PHPStan runs at level max over the whole codebase, tests included, with no baseline: every error fails the build. `phpstan/phpstan-phpunit` lets assertions such as `assertIsString()` narrow types, which is how the tests handle JSON values (decoded as `mixed`).
 
 ---
 

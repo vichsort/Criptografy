@@ -117,7 +117,7 @@ final class AlgorithmContractTest extends TestCase
 
     public function test_every_encryption_algorithm_has_a_contract_fixture(): void
     {
-        foreach ($this->algorithms(EncryptionAlgorithm::class) as $id => $algorithm) {
+        foreach ($this->implementing(EncryptionAlgorithm::class) as $id => $algorithm) {
             $this->assertArrayHasKey(
                 $id,
                 self::ENCRYPTION_FIXTURES,
@@ -128,7 +128,7 @@ final class AlgorithmContractTest extends TestCase
 
     public function test_decrypt_reverses_encrypt(): void
     {
-        foreach ($this->algorithms(EncryptionAlgorithm::class) as $id => $algorithm) {
+        foreach ($this->implementing(EncryptionAlgorithm::class) as $id => $algorithm) {
             $fixture = self::ENCRYPTION_FIXTURES[$id] ?? $this->fail("Missing fixture for \"{$id}\"");
 
             foreach ($fixture['samples'] ?? self::TEXT_SAMPLES as $plaintext) {
@@ -147,7 +147,7 @@ final class AlgorithmContractTest extends TestCase
     {
         // Missing options must raise InvalidAlgorithmOptionsException (422),
         // never a generic error (500).
-        foreach ($this->algorithms(EncryptionAlgorithm::class) as $id => $algorithm) {
+        foreach ($this->implementing(EncryptionAlgorithm::class) as $id => $algorithm) {
             foreach (['encrypt', 'decrypt'] as $operation) {
                 try {
                     $algorithm->{$operation}('ABCD', []);
@@ -164,17 +164,22 @@ final class AlgorithmContractTest extends TestCase
         foreach ($this->algorithms() as $id => $algorithm) {
             $schema = $this->optionsSchemaOf($algorithm);
 
+            $properties = $schema->properties;
+            $required = $schema->required;
+
             $this->assertSame('object', $schema->type, "\"{$id}\": options schema must be of type object");
-            $this->assertInstanceOf(\stdClass::class, $schema->properties, "\"{$id}\": properties must be a JSON object");
-            $this->assertIsArray($schema->required, "\"{$id}\": required must be a list");
+            $this->assertInstanceOf(\stdClass::class, $properties, "\"{$id}\": properties must be a JSON object");
+            $this->assertIsList($required, "\"{$id}\": required must be a list");
             $this->assertFalse($schema->additionalProperties, "\"{$id}\": undeclared options must not be allowed");
             $this->assertObjectNotHasProperty('$schema', $schema, "\"{$id}\": \$schema would break draft-07 validators");
 
-            foreach ($schema->required as $name) {
-                $this->assertObjectHasProperty($name, $schema->properties, "\"{$id}\": required option \"{$name}\" is not declared");
+            foreach ($required as $name) {
+                $this->assertIsString($name, "\"{$id}\": required entries must be option names");
+                $this->assertObjectHasProperty($name, $properties, "\"{$id}\": required option \"{$name}\" is not declared");
             }
 
-            foreach ((array) $schema->properties as $name => $property) {
+            foreach ((array) $properties as $name => $property) {
+                $this->assertInstanceOf(\stdClass::class, $property, "\"{$id}\".{$name}: must be a schema object");
                 $this->assertNotEmpty($property->title ?? null, "\"{$id}\".{$name}: missing title");
                 $this->assertNotEmpty($property->description ?? null, "\"{$id}\".{$name}: missing description");
             }
@@ -194,7 +199,7 @@ final class AlgorithmContractTest extends TestCase
 
     public function test_valid_fixture_options_satisfy_the_schema(): void
     {
-        foreach ($this->algorithms(EncryptionAlgorithm::class) as $id => $algorithm) {
+        foreach ($this->implementing(EncryptionAlgorithm::class) as $id => $algorithm) {
             $options = self::ENCRYPTION_FIXTURES[$id]['options'] ?? $this->fail("Missing fixture for \"{$id}\"");
 
             $this->assertTrue(
@@ -208,7 +213,7 @@ final class AlgorithmContractTest extends TestCase
     {
         // Ensures that validating with the schema on the frontend gives the
         // same verdict as the backend, for everything JSON Schema can express.
-        foreach ($this->algorithms(EncryptionAlgorithm::class) as $id => $algorithm) {
+        foreach ($this->implementing(EncryptionAlgorithm::class) as $id => $algorithm) {
             $invalid = self::ENCRYPTION_FIXTURES[$id]['invalid'] ?? $this->fail("Missing fixture for \"{$id}\"");
 
             foreach ($invalid as $options) {
@@ -231,7 +236,7 @@ final class AlgorithmContractTest extends TestCase
     {
         $samples = [...self::TEXT_SAMPLES, "\x00\x01\xfe\xff", random_bytes(64)];
 
-        foreach ($this->algorithms(EncodingAlgorithm::class) as $id => $algorithm) {
+        foreach ($this->implementing(EncodingAlgorithm::class) as $id => $algorithm) {
             foreach ($samples as $data) {
                 $this->assertSame(
                     $data,
@@ -244,7 +249,7 @@ final class AlgorithmContractTest extends TestCase
 
     public function test_hash_is_deterministic_fixed_length_lowercase_hex(): void
     {
-        foreach ($this->algorithms(HashAlgorithm::class) as $id => $algorithm) {
+        foreach ($this->implementing(HashAlgorithm::class) as $id => $algorithm) {
             $digests = array_map(fn (string $input) => $algorithm->hash($input), self::TEXT_SAMPLES);
 
             $this->assertSame($digests[1], $algorithm->hash(self::TEXT_SAMPLES[1]), "\"{$id}\": not deterministic");
@@ -258,23 +263,36 @@ final class AlgorithmContractTest extends TestCase
     }
 
     /**
-     * @param  class-string|null  $contract  keeps only the algorithms that implement this contract.
      * @return array<string, DescribesAlgorithm>
      */
-    private function algorithms(?string $contract = null): array
+    private function algorithms(): array
     {
         $registry = $this->app->make(Registry::class);
         $algorithms = [];
 
         foreach ($registry->all() as $metadata) {
-            $algorithm = $registry->get($metadata->id);
-
-            if ($contract === null || $algorithm instanceof $contract) {
-                $algorithms[$metadata->id] = $algorithm;
-            }
+            $algorithms[$metadata->id] = $registry->get($metadata->id);
         }
 
-        $this->assertNotEmpty($algorithms, 'No algorithms found for '.($contract ?? 'any contract'));
+        $this->assertNotEmpty($algorithms, 'No algorithms are registered');
+
+        return $algorithms;
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param  class-string<T>  $contract
+     * @return array<string, DescribesAlgorithm&T>
+     */
+    private function implementing(string $contract): array
+    {
+        $algorithms = array_filter(
+            $this->algorithms(),
+            static fn (DescribesAlgorithm $algorithm): bool => $algorithm instanceof $contract,
+        );
+
+        $this->assertNotEmpty($algorithms, "No algorithms implement {$contract}");
 
         return $algorithms;
     }
@@ -284,7 +302,13 @@ final class AlgorithmContractTest extends TestCase
      */
     private function optionsSchemaOf(DescribesAlgorithm $algorithm): \stdClass
     {
-        return json_decode(json_encode($algorithm->describe(), JSON_THROW_ON_ERROR), flags: JSON_THROW_ON_ERROR)->options;
+        $metadata = json_decode(json_encode($algorithm->describe(), JSON_THROW_ON_ERROR), flags: JSON_THROW_ON_ERROR);
+        $this->assertInstanceOf(\stdClass::class, $metadata);
+
+        $schema = $metadata->options;
+        $this->assertInstanceOf(\stdClass::class, $schema);
+
+        return $schema;
     }
 
     /**
