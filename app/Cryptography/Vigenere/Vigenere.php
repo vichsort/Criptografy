@@ -8,14 +8,14 @@ use App\Cryptography\Contracts\EncryptionAlgorithm;
 use App\Cryptography\Contracts\OptionsSchema;
 
 /**
- * Vigenère: soma modular entre o texto e uma chave repetida ao longo dele.
+ * Vigenère: modular sum of the text and a key repeated along it.
  *
  * C[i] = (P[i] + K[i mod len(K)]) mod 26
  *
- * Assim como no Caesar, apenas letras (a-z, A-Z) são transformadas; outros
- * caracteres são preservados e — decisão relevante para a correção do
- * algoritmo — NÃO avançam a posição da chave, para que a mesma frase com ou
- * sem pontuação/espaços produza o mesmo deslocamento letra a letra.
+ * As in Caesar, only letters (a-z, A-Z) are transformed; other characters are
+ * preserved and, importantly for correctness, do NOT advance the key
+ * position, so the same sentence with or without punctuation/spaces gets the
+ * same shift letter by letter.
  */
 final class Vigenere implements DescribesAlgorithm, EncryptionAlgorithm
 {
@@ -60,7 +60,7 @@ final class Vigenere implements DescribesAlgorithm, EncryptionAlgorithm
     }
 
     /**
-     * @param  int  $direction  1 para encrypt, -1 para decrypt
+     * @param  int  $direction  1 to encrypt, -1 to decrypt
      */
     private function apply(string $input, string $key, int $direction): string
     {

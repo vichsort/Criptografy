@@ -15,22 +15,22 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
-        // A rota de status (/) usa o grupo "api", não o "web": a aplicação
-        // não tem páginas, então não precisa de sessão nem de cookies
-        // criptografados (que exigiriam APP_KEY).
+        // The status route (/) uses the "api" group, not "web": the app has
+        // no pages, so it needs neither sessions nor encrypted cookies (which
+        // would require APP_KEY).
         then: fn () => Route::middleware('api')->group(__DIR__.'/../routes/status.php'),
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Em produção (Render) toda requisição chega pelo proxy da
-        // plataforma. Confiar no X-Forwarded-For faz $request->ip() ser o IP
-        // real do cliente, o que o rate limit abaixo precisa. Só é seguro
-        // porque a aplicação nunca fica exposta sem um proxy na frente.
+        // In production (Render) every request arrives through the platform's
+        // proxy. Trusting X-Forwarded-For makes $request->ip() the client's
+        // real IP, which the rate limit below needs. This is only safe
+        // because the app is never exposed without a proxy in front of it.
         $middleware->trustProxies(at: '*');
 
-        // Limite por IP definido em AppServiceProvider (RateLimiter "api").
+        // Per-IP limit defined in AppServiceProvider (the "api" RateLimiter).
         $middleware->throttleApi();
 
-        // Espaços em "input" e nas opções (ex.: chaves) são dados, não ruído.
+        // Whitespace in "input" and in the options (e.g. keys) is data, not noise.
         $middleware->trimStrings(except: [
             'input',
             'options.*',
@@ -41,15 +41,15 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Toda resposta de erro em /api/* é JSON, mesmo quando o cliente não
-        // envia "Accept: application/json" (o fetch() do navegador não envia).
-        // Sem isso, falhas de validação viram redirect 302 e 404/405 viram HTML.
+        // Every error response under /api/* is JSON, even when the client does
+        // not send "Accept: application/json" (the browser's fetch() does not).
+        // Otherwise validation failures become 302 redirects and 404/405 HTML.
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
 
-        // Erros causados pela entrada do cliente não são falhas da aplicação:
-        // viram resposta 4xx, mas não vão para o log.
+        // Errors caused by client input are not application failures: they
+        // become 4xx responses but are not written to the log.
         $exceptions->dontReport([
             AlgorithmNotFoundException::class,
             UnsupportedOperationException::class,
@@ -57,9 +57,8 @@ return Application::configure(basePath: dirname(__DIR__))
             NonTextResultException::class,
         ]);
 
-        // Traduz os erros de domínio da criptografia (Seção 23) em respostas
-        // JSON coerentes para a API, sem que os controllers precisem
-        // conhecer códigos de status HTTP.
+        // Turns cryptography domain errors into consistent JSON responses,
+        // so controllers never need to know HTTP status codes.
         $exceptions->render(function (AlgorithmNotFoundException $e, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json(['message' => $e->getMessage()], 404);

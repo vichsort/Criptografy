@@ -3,26 +3,25 @@
 namespace App\Cryptography\Contracts;
 
 /**
- * Comportamento esperado de qualquer algoritmo de criptografia reversível
+ * Expected behavior of any reversible encryption algorithm
  * (Caesar, Vigenere, Hill, Aes256Gcm, ...).
  *
- * O contrato representa o comportamento esperado, não uma implementação
- * específica (Seção 8 da especificação).
+ * The contract describes behavior, not a specific implementation.
  */
 interface EncryptionAlgorithm
 {
     /**
-     * @param  array<string, mixed>  $options  Opções específicas do algoritmo
-     *                                         (ex.: ['shift' => 3], ['key' => '...']).
+     * @param  array<string, mixed>  $options  Algorithm-specific options
+     *                                         (e.g. ['shift' => 3], ['key' => '...']).
      *
-     * @throws InvalidAlgorithmOptionsException quando as opções são inválidas para este algoritmo.
+     * @throws InvalidAlgorithmOptionsException when the options are invalid for this algorithm.
      */
     public function encrypt(string $input, array $options = []): string;
 
     /**
      * @param  array<string, mixed>  $options
      *
-     * @throws InvalidAlgorithmOptionsException quando as opções são inválidas para este algoritmo.
+     * @throws InvalidAlgorithmOptionsException when the options are invalid for this algorithm.
      */
     public function decrypt(string $input, array $options = []): string;
 }

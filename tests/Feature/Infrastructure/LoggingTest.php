@@ -7,8 +7,8 @@ use Monolog\Handler\StreamHandler;
 use Tests\TestCase;
 
 /**
- * Em containers (Render, Docker) o disco é efêmero e a plataforma coleta os
- * logs de stdout/stderr — por isso precisa existir um canal "stderr".
+ * In containers (Render, Docker) the disk is ephemeral and the platform
+ * collects logs from stdout/stderr, so a "stderr" channel must exist.
  */
 final class LoggingTest extends TestCase
 {

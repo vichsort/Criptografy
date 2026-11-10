@@ -21,7 +21,7 @@ final class HillTest extends TestCase
 
     public function test_encrypts_a_known_2x2_example(): void
     {
-        // Calculado manualmente: det([[3,3],[2,5]]) = 9, mdc(9,26)=1 (inversível).
+        // Worked out by hand: det([[3,3],[2,5]]) = 9, gcd(9,26)=1 (invertible).
         $this->assertSame('HIAT', $this->hill->encrypt('HELP', $this->key2x2));
     }
 
@@ -34,7 +34,7 @@ final class HillTest extends TestCase
 
     public function test_decrypt_reverses_encrypt_when_length_is_a_multiple_of_block_size(): void
     {
-        $plain = 'ATTACKATDAWN'; // 12 letras, múltiplo de 2 — sem padding
+        $plain = 'ATTACKATDAWN'; // 12 letters, a multiple of 2: no padding
 
         $cipher = $this->hill->encrypt($plain, $this->key2x2);
         $decrypted = $this->hill->decrypt($cipher, $this->key2x2);
@@ -44,7 +44,7 @@ final class HillTest extends TestCase
 
     public function test_pads_the_last_incomplete_block_with_x(): void
     {
-        $cipher = $this->hill->encrypt('HELLO', $this->key2x2); // 5 letras -> 6 com padding
+        $cipher = $this->hill->encrypt('HELLO', $this->key2x2); // 5 letters -> 6 with padding
 
         $this->assertSame(0, strlen($cipher) % 2);
         $this->assertSame('HELLOX', $this->hill->decrypt($cipher, $this->key2x2));
@@ -52,7 +52,7 @@ final class HillTest extends TestCase
 
     public function test_non_alphabetic_characters_are_stripped_not_preserved(): void
     {
-        // Diferença deliberada em relação a Caesar/Vigenère — ver docblock da classe.
+        // A deliberate difference from Caesar/Vigenère; see the class docblock.
         $this->assertSame(
             $this->hill->encrypt('HELP', $this->key2x2),
             $this->hill->encrypt('He, Lp!', $this->key2x2),
@@ -82,7 +82,7 @@ final class HillTest extends TestCase
 
     public function test_non_invertible_key_throws(): void
     {
-        // det([[2,4],[6,8]]) = -8 -> mod 26 = 18; mdc(18, 26) = 2 != 1.
+        // det([[2,4],[6,8]]) = -8 -> mod 26 = 18; gcd(18, 26) = 2 != 1.
         $this->expectException(HillException::class);
 
         $this->hill->encrypt('HELP', ['key' => [[2, 4], [6, 8]]]);
@@ -97,8 +97,8 @@ final class HillTest extends TestCase
 
     public function test_key_value_with_repeated_minus_signs_throws(): void
     {
-        // Se '--1' fosse lido como 0, det([[0,3],[1,5]]) = -3 ≡ 23 seria
-        // inversível e a cifra seguiria silenciosamente com a chave errada.
+        // If '--1' were read as 0, det([[0,3],[1,5]]) = -3 ≡ 23 would be
+        // invertible and the cipher would silently proceed with the wrong key.
         $this->expectException(HillException::class);
         $this->expectExceptionMessage('integers');
 
@@ -107,7 +107,7 @@ final class HillTest extends TestCase
 
     public function test_key_value_string_beyond_integer_range_is_reduced_modulo_26(): void
     {
-        // 99999999999999999999 mod 26 = 21; det([[21,3],[2,5]]) = 99 ≡ 21 (coprimo de 26).
+        // 99999999999999999999 mod 26 = 21; det([[21,3],[2,5]]) = 99 ≡ 21 (coprime with 26).
         $this->assertSame(
             $this->hill->encrypt('HELP', ['key' => [[21, 3], [2, 5]]]),
             $this->hill->encrypt('HELP', ['key' => [['99999999999999999999', 3], [2, 5]]]),
@@ -116,7 +116,7 @@ final class HillTest extends TestCase
 
     public function test_large_integer_key_values_do_not_overflow_the_determinant(): void
     {
-        // PHP_INT_MAX mod 26 = 7; det([[7,3],[2,5]]) = 29 ≡ 3 (coprimo de 26).
+        // PHP_INT_MAX mod 26 = 7; det([[7,3],[2,5]]) = 29 ≡ 3 (coprime with 26).
         $key = ['key' => [[PHP_INT_MAX, 3], [2, 5]]];
 
         $this->assertSame(
@@ -128,8 +128,8 @@ final class HillTest extends TestCase
 
     public function test_float_key_value_beyond_exact_precision_throws(): void
     {
-        // 1e20 não é representável exatamente como inteiro; aceitar seria
-        // cifrar com um valor diferente do que o cliente acredita ter enviado.
+        // 1e20 cannot be represented exactly as an integer; accepting it would
+        // mean encrypting with a value other than the one the client meant.
         $this->expectException(HillException::class);
 
         $this->hill->encrypt('HELP', ['key' => [[1e20, 3], [2, 5]]]);
@@ -139,7 +139,7 @@ final class HillTest extends TestCase
     {
         $this->expectException(HillException::class);
 
-        // "ABC" tem 3 letras, mas o bloco é 2.
+        // "ABC" has 3 letters, but the block size is 2.
         $this->hill->decrypt('ABC', $this->key2x2);
     }
 
@@ -151,13 +151,13 @@ final class HillTest extends TestCase
 
     public function test_unicode_and_accented_characters_are_stripped(): void
     {
-        // Hill opera estritamente com letras ASCII A-Z em blocos; símbolos são descartados.
+        // Hill works strictly on ASCII letters A-Z in blocks; symbols are dropped.
         $this->assertSame(
             $this->hill->encrypt('HELP', $this->key2x2),
             $this->hill->encrypt('H E L P ! 🚀', $this->key2x2),
         );
 
-        // Acentos (não-ASCII) são descartados; 'HéLp' vira 'HLP' que recebe padding 'X' => 'HLPX'
+        // Accented (non-ASCII) letters are dropped; 'HéLp' becomes 'HLP', padded with 'X' => 'HLPX'
         $this->assertSame(
             $this->hill->encrypt('HLPX', $this->key2x2),
             $this->hill->encrypt('HéLp', $this->key2x2),

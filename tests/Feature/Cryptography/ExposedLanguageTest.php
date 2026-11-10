@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
- * Tudo o que a API expõe (mensagens de erro e metadados dos algoritmos) é
- * em inglês, o idioma padrão do sistema.
+ * Everything the API exposes (error messages and algorithm metadata) is in
+ * English, the system's default language.
  */
 final class ExposedLanguageTest extends TestCase
 {
@@ -87,8 +87,8 @@ final class ExposedLanguageTest extends TestCase
 
     public function test_algorithm_descriptions_are_in_english(): void
     {
-        // Descrições em inglês não precisam de acentos; um caractere não
-        // ASCII aqui quase sempre é texto em português que ficou para trás.
+        // English descriptions need no accents; a non-ASCII character here
+        // almost always means untranslated text was left behind.
         $descriptions = collect($this->getJson('/api/algorithms')->json('data'))
             ->pluck('description', 'id');
 

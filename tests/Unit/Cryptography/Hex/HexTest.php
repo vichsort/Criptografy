@@ -22,7 +22,7 @@ final class HexTest extends TestCase
 
     public function test_decode_reverses_encode(): void
     {
-        $original = 'texto qualquer 123';
+        $original = 'any text 123';
 
         $this->assertSame($original, $this->hex->decode($this->hex->encode($original)));
     }

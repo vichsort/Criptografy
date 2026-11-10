@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\Route;
 | API Routes
 |--------------------------------------------------------------------------
 |
-| Endpoints conforme Seção 19 da especificação.
+| Every cryptographic operation has its own endpoint; GET /algorithms
+| lists what is available, with the JSON Schema of each one's options.
 |
 */
 

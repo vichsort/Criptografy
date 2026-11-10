@@ -8,10 +8,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
- * Clientes reais (ex.: fetch() do navegador) não enviam
- * "Accept: application/json" por padrão. Os demais testes usam postJson(),
- * que envia esse header e por isso não detectariam respostas HTML ou
- * redirects. Aqui as requisições imitam um fetch() comum (Accept: *\/*).
+ * Real clients (e.g. the browser's fetch()) do not send
+ * "Accept: application/json" by default. The other tests use postJson(),
+ * which sends that header and therefore would not catch HTML responses or
+ * redirects. Here requests mimic a plain fetch() (Accept: *\/*).
  */
 final class ApiErrorResponseTest extends TestCase
 {
@@ -44,15 +44,15 @@ final class ApiErrorResponseTest extends TestCase
      */
     public static function clientErrors(): iterable
     {
-        yield 'algoritmo inexistente' => ['/api/encrypt', ['algorithm' => 'nope', 'input' => 'a'], 404];
-        yield 'operação não suportada' => ['/api/encrypt', ['algorithm' => 'sha-256', 'input' => 'a'], 422];
-        yield 'opções inválidas' => ['/api/encrypt', ['algorithm' => 'caesar', 'input' => 'a'], 422];
-        yield 'resultado não UTF-8' => ['/api/decode', ['algorithm' => 'hex', 'input' => 'ff'], 422];
+        yield 'unknown algorithm' => ['/api/encrypt', ['algorithm' => 'nope', 'input' => 'a'], 404];
+        yield 'unsupported operation' => ['/api/encrypt', ['algorithm' => 'sha-256', 'input' => 'a'], 422];
+        yield 'invalid options' => ['/api/encrypt', ['algorithm' => 'caesar', 'input' => 'a'], 422];
+        yield 'non-UTF-8 result' => ['/api/decode', ['algorithm' => 'hex', 'input' => 'ff'], 422];
     }
 
     /**
-     * Erros causados pela entrada do cliente não são falhas da aplicação:
-     * registrá-los no log (com stacktrace) só gera ruído em produção.
+     * Errors caused by client input are not application failures: logging
+     * them (with a stack trace) only adds noise in production.
      *
      * @param  array<string, mixed>  $body
      */

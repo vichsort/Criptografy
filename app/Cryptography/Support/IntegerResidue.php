@@ -3,25 +3,25 @@
 namespace App\Cryptography\Support;
 
 /**
- * Interpreta um valor vindo do cliente como inteiro e devolve seu resto em
- * módulo N, no intervalo [0, N).
+ * Reads a client-supplied value as an integer and returns its residue
+ * modulo N, in the range [0, N).
  *
- * Cifras clássicas (Caesar, Hill) só dependem dos parâmetros em mod 26.
- * Reduzir já na leitura evita dois problemas:
+ * Classical ciphers (Caesar, Hill) only depend on their parameters mod 26.
+ * Reducing them as soon as they are read avoids two problems:
  *
- *  - overflow: aritmética com valores próximos de PHP_INT_MAX/MIN vira float
- *    e quebra as funções tipadas como int;
- *  - perda silenciosa de valor: `(int) "99999999999999999999"` satura em
- *    PHP_INT_MAX. Aqui strings de qualquer tamanho são reduzidas dígito a
- *    dígito, sem nunca materializar o número inteiro.
+ *  - overflow: arithmetic on values near PHP_INT_MAX/MIN turns into float
+ *    and breaks functions typed as int;
+ *  - silent value loss: `(int) "99999999999999999999"` saturates at
+ *    PHP_INT_MAX. Here strings of any length are reduced digit by digit,
+ *    without ever materializing the whole number.
  *
- * Aceita: int; float com valor inteiro exato (|v| <= 2^53, ex.: JSON "3.0");
- * string no formato /^-?\d+$/. Qualquer outra coisa (inclusive "--3", "+3",
- * " 3", "3.0" em string) retorna null.
+ * Accepts: int; float holding an exact integer value (|v| <= 2^53, e.g. JSON
+ * "3.0"); string matching /^-?\d+$/. Anything else (including "--3", "+3",
+ * " 3", or "3.0" as a string) returns null.
  */
 final class IntegerResidue
 {
-    /** Maior inteiro que um float IEEE 754 de 64 bits representa sem perda. */
+    /** Largest integer a 64-bit IEEE 754 float represents without loss. */
     private const MAX_EXACT_FLOAT = 2 ** 53;
 
     public static function of(mixed $value, int $modulus): ?int

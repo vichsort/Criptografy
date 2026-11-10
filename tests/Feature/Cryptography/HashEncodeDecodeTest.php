@@ -31,8 +31,8 @@ final class HashEncodeDecodeTest extends TestCase
 
     public function test_calling_encrypt_on_a_hash_algorithm_is_rejected(): void
     {
-        // sha-256 não implementa EncryptionAlgorithm — o controller deve
-        // recusar, não tentar adivinhar uma operação que o algoritmo não tem.
+        // sha-256 does not implement EncryptionAlgorithm: the controller must
+        // refuse instead of guessing an operation the algorithm lacks.
         $response = $this->postJson('/api/encrypt', [
             'algorithm' => 'sha-256',
             'input' => 'abc',
@@ -84,7 +84,7 @@ final class HashEncodeDecodeTest extends TestCase
     {
         $response = $this->postJson('/api/decode', [
             'algorithm' => 'base64',
-            'input' => 'não é base64 válido !!!',
+            'input' => 'this is not valid base64 !!!',
         ]);
 
         $response->assertStatus(422);
@@ -94,22 +94,22 @@ final class HashEncodeDecodeTest extends TestCase
     {
         $encrypted = $this->postJson('/api/encrypt', [
             'algorithm' => 'aes-256-gcm',
-            'input' => 'informação sensível',
-            'options' => ['key' => 'minha-chave-secreta'],
+            'input' => 'sensitive information',
+            'options' => ['key' => 'my-secret-key'],
         ]);
 
         $encrypted->assertOk();
         $cipher = $encrypted->json('result');
-        $this->assertNotSame('informação sensível', $cipher);
+        $this->assertNotSame('sensitive information', $cipher);
 
         $decrypted = $this->postJson('/api/decrypt', [
             'algorithm' => 'aes-256-gcm',
             'input' => $cipher,
-            'options' => ['key' => 'minha-chave-secreta'],
+            'options' => ['key' => 'my-secret-key'],
         ]);
 
         $decrypted->assertOk();
-        $decrypted->assertJson(['result' => 'informação sensível']);
+        $decrypted->assertJson(['result' => 'sensitive information']);
     }
 
     public function test_all_eight_algorithms_are_listed(): void
@@ -198,8 +198,8 @@ final class HashEncodeDecodeTest extends TestCase
 
     public function test_aes_decrypt_producing_non_utf8_bytes_returns_422(): void
     {
-        // Ciphertext gerado fora da API (ex.: por outra ferramenta) com
-        // plaintext binário — a API não consegue representá-lo em JSON.
+        // Ciphertext produced outside the API (e.g. by another tool) from a
+        // binary plaintext, which the API cannot represent in JSON.
         $ciphertext = (new Aes256Gcm)->encrypt("\xff\xfe", ['key' => 'k']);
 
         $response = $this->postJson('/api/decrypt', [

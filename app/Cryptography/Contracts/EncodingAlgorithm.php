@@ -3,17 +3,17 @@
 namespace App\Cryptography\Contracts;
 
 /**
- * Comportamento esperado de uma transformação de encoding (Base64, Hex, ...).
+ * Expected behavior of an encoding transformation (Base64, Hex, ...).
  *
- * Diferente de EncryptionAlgorithm: encode/decode não possuem noção de chave
- * nem de segurança — são apenas mudanças de representação (Seção 14).
+ * Unlike EncryptionAlgorithm, encode/decode have no notion of a key or of
+ * security: they only change the representation of the data.
  */
 interface EncodingAlgorithm
 {
     public function encode(string $input): string;
 
     /**
-     * @throws InvalidAlgorithmOptionsException quando o input não está no formato esperado.
+     * @throws InvalidAlgorithmOptionsException when the input is not in the expected format.
      */
     public function decode(string $input): string;
 }

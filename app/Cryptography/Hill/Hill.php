@@ -9,18 +9,18 @@ use App\Cryptography\Contracts\OptionsSchema;
 use App\Cryptography\Support\IntegerResidue;
 
 /**
- * Hill: cada bloco de N letras é tratado como um vetor e transformado por
- * uma matriz-chave N x N, em aritmética modular (mod 26):
+ * Hill: each block of N letters is treated as a vector and transformed by an
+ * N x N key matrix, in modular arithmetic (mod 26):
  *
  *     C = K × P  (mod 26)      — encrypt
  *     P = K⁻¹ × C  (mod 26)    — decrypt
  *
- * Diferença deliberada em relação a Caesar/Vigenère: por operar em BLOCOS de
- * tamanho fixo, o Hill aqui normaliza o texto para apenas letras maiúsculas
- * antes de processar (removendo espaços/pontuação) e preenche o último
- * bloco com 'X' quando necessário. Preservar pontuação intercalada
- * quebraria o alinhamento dos blocos — é uma limitação estrutural de cifras
- * de bloco clássicas, não um descuido de implementação.
+ * A deliberate difference from Caesar/Vigenère: since it works on fixed-size
+ * BLOCKS, Hill normalizes the text to uppercase letters only before
+ * processing (dropping spaces/punctuation) and pads the last block with 'X'
+ * when needed. Keeping interleaved punctuation would break block alignment;
+ * this is a structural limitation of classical block ciphers, not an
+ * implementation oversight.
  */
 final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
 {
@@ -56,11 +56,11 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
     }
 
     // ------------------------------------------------------------------
-    // Texto <-> vetores
+    // Text <-> vectors
     // ------------------------------------------------------------------
 
     /**
-     * @return list<string> apenas letras, maiúsculas.
+     * @return list<string> letters only, uppercase.
      */
     private function extractLetters(string $input): array
     {
@@ -113,7 +113,7 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
     }
 
     // ------------------------------------------------------------------
-    // Validação e parsing da chave
+    // Key validation and parsing
     // ------------------------------------------------------------------
 
     /**
@@ -151,9 +151,9 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
                 throw HillException::invalidKeyFormat();
             }
 
-            // Cada valor é reduzido mod 26 já na leitura: a cifra só depende
-            // da matriz em mod 26, e entradas pequenas impedem que o
-            // determinante e os cofatores estourem o limite de int.
+            // Each value is reduced mod 26 as soon as it is read: the cipher
+            // only depends on the matrix mod 26, and small entries keep the
+            // determinant and cofactors from overflowing int.
             $matrix[] = array_map(
                 static fn (mixed $value): int => IntegerResidue::of($value, self::ALPHABET_SIZE)
                     ?? throw HillException::invalidKeyFormat(),
@@ -161,9 +161,9 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
             );
         }
 
-        // O Hill exige que a matriz seja inversível em mod 26; validar aqui
-        // garante que tanto encrypt() quanto decrypt() falhem cedo e com uma
-        // mensagem clara, em vez de produzir um resultado incorreto.
+        // Hill requires the matrix to be invertible mod 26; validating here
+        // makes both encrypt() and decrypt() fail early with a clear message
+        // instead of producing a wrong result.
         $determinant = $this->mod($this->determinant($matrix), self::ALPHABET_SIZE);
 
         if ($this->modInverse($determinant, self::ALPHABET_SIZE) === null) {
@@ -174,7 +174,7 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
     }
 
     // ------------------------------------------------------------------
-    // Álgebra matricial em módulo N
+    // Matrix algebra modulo N
     // ------------------------------------------------------------------
 
     /**
@@ -229,9 +229,9 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
     }
 
     /**
-     * Determinante por expansão de cofatores (Laplace) na primeira linha.
-     * Recursivo, adequado para as matrizes pequenas usadas no Hill
-     * (até MAX_MATRIX_SIZE x MAX_MATRIX_SIZE).
+     * Determinant by cofactor (Laplace) expansion along the first row.
+     * Recursive, which is fine for the small matrices Hill uses
+     * (up to MAX_MATRIX_SIZE x MAX_MATRIX_SIZE).
      *
      * @param  list<list<int>>  $matrix
      */
@@ -281,7 +281,7 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
     }
 
     /**
-     * Remove a linha e a coluna indicadas, retornando a submatriz (menor).
+     * Removes the given row and column, returning the submatrix (minor).
      *
      * @param  list<list<int>>  $matrix
      * @return list<list<int>>
@@ -329,7 +329,7 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
     }
 
     // ------------------------------------------------------------------
-    // Aritmética modular
+    // Modular arithmetic
     // ------------------------------------------------------------------
 
     private function mod(int $value, int $modulus): int
@@ -338,9 +338,9 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
     }
 
     /**
-     * Inverso multiplicativo de $value em módulo $modulus, via algoritmo de
-     * Euclides estendido. Retorna null quando mdc($value, $modulus) != 1
-     * (ou seja, quando o inverso não existe).
+     * Multiplicative inverse of $value modulo $modulus, via the extended
+     * Euclidean algorithm. Returns null when gcd($value, $modulus) != 1
+     * (that is, when the inverse does not exist).
      */
     private function modInverse(int $value, int $modulus): ?int
     {

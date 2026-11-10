@@ -14,10 +14,10 @@ use App\Cryptography\Vigenere\Vigenere;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * Único lugar da aplicação que conhece a lista completa de algoritmos
- * disponíveis. Adicionar um novo algoritmo (Seção 20 — Open/Closed)
- * significa registrar mais uma linha aqui, sem alterar Registry,
- * controllers ou qualquer outro algoritmo já existente.
+ * The only place in the application that knows the full list of available
+ * algorithms. Adding a new algorithm (Open/Closed) means registering one more
+ * line here, without changing the Registry, the controllers or any existing
+ * algorithm.
  */
 final class CryptographyServiceProvider extends ServiceProvider
 {

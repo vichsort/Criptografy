@@ -5,21 +5,21 @@ namespace App\Cryptography\Contracts;
 use stdClass;
 
 /**
- * Monta o JSON Schema das opções aceitas por um algoritmo, exposto em
- * GET /api/algorithms para que o frontend gere e valide o formulário sem
- * duplicar as regras de cada algoritmo.
+ * Builds the JSON Schema of the options an algorithm accepts. It is exposed in
+ * GET /api/algorithms so the frontend can generate and validate the form
+ * without duplicating each algorithm's rules.
  *
- * Usa apenas palavras-chave idênticas no draft-07 e no 2020-12, e não declara
- * "$schema": validadores configurados para draft-07 (ex.: o AJV padrão do
- * react-jsonschema-form) recusam um schema que declare 2020-12.
+ * Only keywords that are identical in draft-07 and 2020-12 are used, and
+ * "$schema" is not declared: validators set up for draft-07 (e.g. the default
+ * AJV in react-jsonschema-form) reject a schema that declares 2020-12.
  *
- * O schema é fechado (additionalProperties: false): descreve exatamente as
- * opções que o algoritmo lê.
+ * The schema is closed (additionalProperties: false): it describes exactly
+ * the options the algorithm reads.
  */
 final class OptionsSchema
 {
     /**
-     * @param  array<string, array<string, mixed>>  $properties  nome da opção => schema da opção.
+     * @param  array<string, array<string, mixed>>  $properties  option name => option schema.
      * @param  list<string>  $required
      * @return array<string, mixed>
      */
@@ -27,8 +27,8 @@ final class OptionsSchema
     {
         return [
             'type' => 'object',
-            // Um array PHP vazio seria serializado como [] (lista); o schema
-            // exige um objeto JSON ({}).
+            // An empty PHP array would serialize as [] (a list); the schema
+            // requires a JSON object ({}).
             'properties' => $properties === [] ? new stdClass : $properties,
             'required' => $required,
             'additionalProperties' => false,
@@ -36,7 +36,7 @@ final class OptionsSchema
     }
 
     /**
-     * Schema de quem não aceita opções (hashes, encodings).
+     * Schema for algorithms that take no options (hashes, encodings).
      *
      * @return array<string, mixed>
      */

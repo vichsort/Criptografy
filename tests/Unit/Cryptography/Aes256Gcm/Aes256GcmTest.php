@@ -17,8 +17,8 @@ final class Aes256GcmTest extends TestCase
 
     public function test_decrypt_reverses_encrypt_with_the_same_key(): void
     {
-        $plain = 'Segredo de estado';
-        $options = ['key' => 'senha-super-secreta'];
+        $plain = 'State secret';
+        $options = ['key' => 'super-secret-password'];
 
         $cipher = $this->aes->encrypt($plain, $options);
 
@@ -28,33 +28,33 @@ final class Aes256GcmTest extends TestCase
 
     public function test_encrypting_the_same_plaintext_twice_yields_different_ciphertexts(): void
     {
-        // Propriedade de segurança: o nonce é aleatório a cada chamada.
-        $options = ['key' => 'senha-super-secreta'];
+        // Security property: the nonce is random on every call.
+        $options = ['key' => 'super-secret-password'];
 
-        $first = $this->aes->encrypt('mesmo texto', $options);
-        $second = $this->aes->encrypt('mesmo texto', $options);
+        $first = $this->aes->encrypt('same text', $options);
+        $second = $this->aes->encrypt('same text', $options);
 
         $this->assertNotSame($first, $second);
     }
 
     public function test_decrypting_with_the_wrong_key_fails_authentication(): void
     {
-        $cipher = $this->aes->encrypt('dado sensível', ['key' => 'chave-correta']);
+        $cipher = $this->aes->encrypt('sensitive data', ['key' => 'right-key']);
 
         $this->expectException(Aes256GcmException::class);
 
-        $this->aes->decrypt($cipher, ['key' => 'chave-errada']);
+        $this->aes->decrypt($cipher, ['key' => 'wrong-key']);
     }
 
     public function test_decrypting_tampered_ciphertext_fails_authentication(): void
     {
-        $cipher = $this->aes->encrypt('dado sensível', ['key' => 'chave']);
+        $cipher = $this->aes->encrypt('sensitive data', ['key' => 'key']);
         $lastChar = $cipher[-1];
         $tampered = substr($cipher, 0, -1).($lastChar === 'A' ? 'B' : 'A');
 
         $this->expectException(Aes256GcmException::class);
 
-        $this->aes->decrypt($tampered, ['key' => 'chave']);
+        $this->aes->decrypt($tampered, ['key' => 'key']);
     }
 
     public function test_missing_key_throws(): void
@@ -68,12 +68,12 @@ final class Aes256GcmTest extends TestCase
     {
         $this->expectException(Aes256GcmException::class);
 
-        $this->aes->decrypt('nao-e-base64-nem-de-longe!!', ['key' => 'chave']);
+        $this->aes->decrypt('not-even-close-to-base64!!', ['key' => 'key']);
     }
 
     public function test_handles_empty_input_string(): void
     {
-        $options = ['key' => 'minha-chave'];
+        $options = ['key' => 'my-key'];
         $cipher = $this->aes->encrypt('', $options);
 
         $this->assertNotEmpty($cipher);
@@ -91,8 +91,8 @@ final class Aes256GcmTest extends TestCase
 
     public function test_handles_large_data(): void
     {
-        $options = ['key' => 'chave-teste'];
-        $plain = str_repeat('Bloco de 64 bytes para teste de volume criptográfico em memória! ', 1000); // ~64 KB
+        $options = ['key' => 'test-key'];
+        $plain = str_repeat('A block of text used to check encryption of a large payload!!! ', 1000); // ~64 KB
         $cipher = $this->aes->encrypt($plain, $options);
 
         $this->assertSame($plain, $this->aes->decrypt($cipher, $options));

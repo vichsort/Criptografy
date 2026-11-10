@@ -16,8 +16,8 @@ final class Sha256Test extends TestCase
 
     public function test_delegates_to_the_native_php_hash_function(): void
     {
-        // Não reimplementamos SHA-256 (Seção 13) — a garantia de correção
-        // vem de delegar para a implementação nativa do PHP.
+        // SHA-256 is not reimplemented: correctness comes from delegating to
+        // PHP's native implementation.
         $this->assertSame(hash('sha256', 'abc'), $this->sha256->hash('abc'));
     }
 
@@ -47,7 +47,7 @@ final class Sha256Test extends TestCase
 
     public function test_empty_string_produces_nist_empty_digest(): void
     {
-        // Vetor padrão NIST para string vazia
+        // Standard NIST test vector for the empty string
         $this->assertSame(
             'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
             $this->sha256->hash(''),

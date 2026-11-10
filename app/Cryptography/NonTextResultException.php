@@ -5,10 +5,10 @@ namespace App\Cryptography;
 use RuntimeException;
 
 /**
- * O algoritmo produziu um resultado válido, mas em bytes que não formam
- * texto UTF-8 (ex.: decode de hex "ff", ou decrypt de um plaintext binário).
- * A API responde em JSON, que só transporta texto UTF-8, então o resultado
- * não pode ser devolvido sem ser corrompido.
+ * The algorithm produced a valid result, but its bytes are not UTF-8 text
+ * (e.g. hex-decoding "ff", or decrypting a binary plaintext). The API answers
+ * in JSON, which only carries UTF-8 text, so the result cannot be returned
+ * without corrupting it.
  */
 final class NonTextResultException extends RuntimeException
 {

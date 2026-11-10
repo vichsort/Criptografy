@@ -66,8 +66,8 @@ final class RegistryTest extends TestCase
 
     public function test_algorithm_is_registered_under_the_id_it_describes(): void
     {
-        // O id vem só de describe(): não existe um segundo lugar onde ele
-        // possa divergir do que GET /api/algorithms anuncia.
+        // The id comes only from describe(): there is no second place where it
+        // could diverge from what GET /api/algorithms announces.
         $registry = new Registry;
         $registry->register($this->fakeAlgorithm('hill'));
 

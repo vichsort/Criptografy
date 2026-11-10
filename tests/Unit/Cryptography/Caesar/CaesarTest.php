@@ -7,8 +7,8 @@ use App\Cryptography\Caesar\CaesarException;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Teste unitário puro: não depende do container do Laravel, apenas da
- * classe Caesar isolada. Isso o torna rápido e independente de HTTP/DB.
+ * Pure unit test: it depends only on the isolated Caesar class, not on
+ * Laravel's container, which keeps it fast and independent of HTTP/DB.
  */
 final class CaesarTest extends TestCase
 {
@@ -97,7 +97,7 @@ final class CaesarTest extends TestCase
 
     public function test_shift_as_integral_float_is_accepted(): void
     {
-        // JSON "3.0" chega como float; o Hill já aceitava, o Caesar passa a aceitar também.
+        // JSON "3.0" arrives as a float; Hill already accepted it, and so does Caesar now.
         $this->assertSame(
             $this->caesar->encrypt('abc', ['shift' => 3]),
             $this->caesar->encrypt('abc', ['shift' => 3.0]),
@@ -129,7 +129,7 @@ final class CaesarTest extends TestCase
 
     public function test_decrypt_with_minimum_integer_shift_does_not_overflow(): void
     {
-        // PHP_INT_MIN mod 26 = 18; negar PHP_INT_MIN sem reduzir antes estoura para float.
+        // PHP_INT_MIN mod 26 = 18; negating PHP_INT_MIN without reducing it first overflows to float.
         $this->assertSame(
             $this->caesar->decrypt('abc', ['shift' => 18]),
             $this->caesar->decrypt('abc', ['shift' => PHP_INT_MIN]),

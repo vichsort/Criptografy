@@ -8,11 +8,10 @@ use App\Cryptography\Contracts\HashAlgorithm;
 use App\Cryptography\Contracts\OptionsSchema;
 
 /**
- * SHA-512 via hash() nativo do PHP — mesmo raciocínio do Sha256 (Seção 13).
- * Mantido como módulo próprio (não uma variação parametrizada de Sha256)
- * porque cada algoritmo é um módulo autocontido (Seção 7); a duplicação
- * aqui é mínima e a separação é mais clara que uma abstração prematura
- * (Seção 21).
+ * SHA-512 via PHP's native hash(), with the same reasoning as Sha256.
+ * Kept as its own module (not a parameterized variant of Sha256) because each
+ * algorithm is a self-contained module; the duplication is minimal and the
+ * separation is clearer than a premature abstraction.
  */
 final class Sha512 implements DescribesAlgorithm, HashAlgorithm
 {

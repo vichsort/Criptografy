@@ -9,14 +9,14 @@ use App\Cryptography\Contracts\OptionsSchema;
 use App\Cryptography\Support\IntegerResidue;
 
 /**
- * Caesar: cifra de substituição por deslocamento fixo do alfabeto.
+ * Caesar: substitution cipher that shifts the alphabet by a fixed amount.
  *
  * C = (P + shift) mod 26
  *
- * Apenas letras (a-z, A-Z) são transformadas; qualquer outro caractere
- * (espaços, pontuação, dígitos, acentos) é preservado sem alteração.
- * Isso é uma decisão deliberada de escopo educacional: o Caesar clássico
- * opera sobre um alfabeto de 26 letras, não sobre Unicode completo.
+ * Only letters (a-z, A-Z) are transformed; every other character (spaces,
+ * punctuation, digits, accented letters) is preserved unchanged. This is a
+ * deliberate educational scope decision: the classical Caesar cipher works
+ * on a 26-letter alphabet, not on the whole of Unicode.
  */
 final class Caesar implements DescribesAlgorithm, EncryptionAlgorithm
 {
@@ -33,8 +33,9 @@ final class Caesar implements DescribesAlgorithm, EncryptionAlgorithm
     }
 
     /**
-     * Retorna o deslocamento já reduzido a [0, 26). Só o valor mod 26 importa
-     * para a cifra, e reduzir aqui evita overflow ao negar o shift no decrypt.
+     * Returns the shift already reduced to [0, 26). Only its value mod 26
+     * matters to the cipher, and reducing it here prevents an overflow when
+     * decrypt() negates the shift.
      *
      * @param  array<string, mixed>  $options
      *
@@ -52,9 +53,9 @@ final class Caesar implements DescribesAlgorithm, EncryptionAlgorithm
 
     private function shiftText(string $input, int $shift): string
     {
-        // Normaliza para o intervalo [0, 26) antes de aplicar, para que
-        // deslocamentos negativos (decrypt) e maiores que 26 funcionem
-        // corretamente com a aritmética modular do PHP.
+        // Normalize to [0, 26) before applying, so negative shifts (decrypt)
+        // and shifts larger than 26 work correctly with PHP's modular
+        // arithmetic.
         $shift = (($shift % self::ALPHABET_SIZE) + self::ALPHABET_SIZE) % self::ALPHABET_SIZE;
 
         $result = '';

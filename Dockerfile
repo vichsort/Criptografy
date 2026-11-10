@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-# --- Dependências (sem pacotes de dev) ---------------------------------------
+# --- Dependencies (no dev packages) ------------------------------------------
 FROM composer:2 AS vendor
 
 WORKDIR /app
@@ -16,12 +16,12 @@ RUN composer install \
     --optimize-autoloader
 
 # --- Runtime -----------------------------------------------------------------
-# A imagem oficial já inclui as extensões que o Laravel e a API usam
-# (openssl, mbstring, ctype, tokenizer, ...), então nada é compilado aqui.
+# The official image already ships the extensions Laravel and the API use
+# (openssl, mbstring, ctype, tokenizer, ...), so nothing is compiled here.
 FROM php:8.3-apache
 
-# Padrões de produção. Qualquer um pode ser sobrescrito pelas variáveis de
-# ambiente do Render. PORT é injetada pelo Render em runtime.
+# Production defaults. Any of them can be overridden by Render's environment
+# variables. Render injects PORT at runtime.
 ENV APP_ENV=production \
     APP_DEBUG=false \
     LOG_CHANNEL=stderr \
@@ -43,8 +43,8 @@ WORKDIR /var/www/html
 COPY --from=vendor /app/vendor ./vendor
 COPY . .
 
-# Descoberta de pacotes que o --no-scripts pulou; storage e cache graváveis
-# pelo usuário do Apache.
+# Package discovery that --no-scripts skipped; storage and cache writable by
+# the Apache user.
 RUN php artisan package:discover --ansi \
     && chown -R www-data:www-data storage bootstrap/cache
 

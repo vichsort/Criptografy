@@ -31,7 +31,7 @@ final class Base64Test extends TestCase
     {
         $this->expectException(Base64Exception::class);
 
-        $this->base64->decode('isto não é base64 válido !!!');
+        $this->base64->decode('this is not valid base64 !!!');
     }
 
     public function test_encode_and_decode_empty_string(): void

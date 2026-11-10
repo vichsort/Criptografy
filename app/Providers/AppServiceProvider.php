@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // A API é pública: sem limite, qualquer cliente esgota a instância.
+        // The API is public: without a limit, any client could exhaust the instance.
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(
             (int) config('app.api_rate_limit'),
         )->by($request->ip()));

@@ -8,10 +8,10 @@ use Illuminate\Http\JsonResponse;
 abstract class Controller
 {
     /**
-     * Resposta padrão das operações criptográficas: { "result": "..." }.
+     * Standard response of the cryptographic operations: { "result": "..." }.
      *
-     * @throws NonTextResultException quando o resultado não é UTF-8 válido
-     *                                e, portanto, não cabe em JSON.
+     * @throws NonTextResultException when the result is not valid UTF-8 and
+     *                                therefore cannot be carried in JSON.
      */
     protected function result(string $result): JsonResponse
     {

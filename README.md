@@ -1,59 +1,85 @@
 # Criptografy API
 
-API REST para experimentação e aprendizado de conceitos criptográficos, cifras clássicas, criptografia moderna autenticada, funções de hashing e codificações.
+REST API for experimenting with and learning cryptographic concepts: classical ciphers, modern authenticated encryption, hash functions and encodings.
 
-O projeto é construído em **Laravel 13** como um backend de API puro (stateless, sem persistência e com suporte a CORS habilitado), pronto para ser consumido por clientes externos (ex.: Next.js).
+The project is built with **Laravel 13** as a pure API backend (stateless, no persistence, CORS enabled), ready to be consumed by external clients (e.g. Next.js).
 
 ---
 
-## Arquitetura e Fluxo de Execução
+## Architecture and Request Flow
 
-O ciclo de vida de qualquer operação criptográfica na API segue um fluxo estrito e desacoplado:
+Every cryptographic operation follows the same strict, decoupled flow:
 
 ```text
 HTTP Request (POST /api/encrypt, /api/hash, etc.)
   │
   ▼
-CryptographyOperationRequest (Validação sintática: algorithm, input, options)
+CryptographyOperationRequest (syntactic validation: algorithm, input, options)
   │
   ▼
-Controller (Orquestrador fino: EncryptController, HashController, etc.)
+Controller (thin orchestrator: EncryptController, HashController, etc.)
   │
   ▼
-Registry (Resolução do algoritmo por identificador estável)
+Registry (resolves the algorithm by its stable identifier)
   │
   ▼
-Algoritmo Concreto (Caesar, Aes256Gcm, Sha256, etc. - Regra pura)
+Concrete algorithm (Caesar, Aes256Gcm, Sha256, etc. - pure logic)
   │
   ▼
-HTTP JSON Response (ou Exception Handler global traduzindo exceções de domínio)
+HTTP JSON Response (or the global exception handler translating domain exceptions)
 ```
 
-### Componentes Principais
+### Main Components
 
-* **Controllers Finos**: Cada endpoint possui um controller dedicado (`EncryptController`, `DecryptController`, `HashController`, `EncodeController`, `DecodeController`, `AlgorithmController`). O controller não implementa lógica criptográfica; apenas resolve a instância no `Registry`, valida a interface de contrato e despacha a chamada.
-* **Registry Centralizado (`App\Cryptography\Registry`)**: Mapeia identificadores de algoritmos (`'caesar'`, `'aes-256-gcm'`, etc.) para suas instâncias. Restringe os registros estritamente a implementações de `DescribesAlgorithm`.
-* **Provedor de Serviço (`App\Providers\CryptographyServiceProvider`)**: Único ponto do sistema que conhece todos os algoritmos ativos e os registra no `Registry`, garantindo aderência ao princípio Open/Closed (OCP).
-* **Tratamento de Exceções Global (`bootstrap/app.php`)**: Exceções de domínio herdam de `InvalidAlgorithmOptionsException` ou `AlgorithmNotFoundException` e são convertidas automaticamente em respostas HTTP (422 e 404), mantendo os controllers limpos de status codes HTTP. Toda resposta de erro em `/api/*` é JSON, mesmo sem o header `Accept: application/json`, e erros causados pela entrada do cliente não são registrados no log.
-* **Rate Limit e Proxy (`bootstrap/app.php`, `AppServiceProvider`)**: As rotas da API são limitadas por IP (`API_RATE_LIMIT`, padrão 60/min; acima disso, 429). O `X-Forwarded-For` é confiável para que o IP real do cliente seja usado atrás do proxy da plataforma de hospedagem.
-* **Integridade de Entrada (`bootstrap/app.php`)**: O campo `input` é explicitamente protegido contra sanitizações automáticas (`TrimStrings` e `ConvertEmptyStringsToNull`). Em criptografia, espaços e strings vazias são dados significativos (como o hash NIST de string vazia).
+* **Thin controllers**: each endpoint has a dedicated controller (`EncryptController`, `DecryptController`, `HashController`, `EncodeController`, `DecodeController`, `AlgorithmController`). Controllers hold no cryptographic logic; they resolve the instance from the `Registry`, check that it implements the right contract and dispatch the call.
+* **Central registry (`App\Cryptography\Registry`)**: maps algorithm identifiers (`'caesar'`, `'aes-256-gcm'`, etc.) to their instances. Only `DescribesAlgorithm` implementations can be registered, and each one is registered under its own `describe()->id`.
+* **Service provider (`App\Providers\CryptographyServiceProvider`)**: the only place that knows every active algorithm and registers it in the `Registry`, following the Open/Closed principle.
+* **Global exception handling (`bootstrap/app.php`)**: domain exceptions are turned into HTTP responses automatically, so controllers never deal with status codes. Every error response under `/api/*` is JSON, even without an `Accept: application/json` header, and errors caused by client input are not written to the log.
+* **Rate limiting and proxy (`bootstrap/app.php`, `AppServiceProvider`)**: API routes are limited per IP (`API_RATE_LIMIT`, 60/min by default; above that, 429). `X-Forwarded-For` is trusted so the client's real IP is used behind the hosting platform's proxy.
+* **Input integrity (`bootstrap/app.php`)**: `input` and `options.*` are excluded from Laravel's automatic sanitization (`TrimStrings` and `ConvertEmptyStringsToNull`). In cryptography, whitespace and empty strings are meaningful data (e.g. the NIST hash of the empty string, or a key with spaces).
 
 ---
 
-## Contratos e Interfaces
+## Endpoints
 
-Os algoritmos estão organizados em `app/Cryptography/Contracts/`:
+All requests and responses are JSON.
 
-| Contrato | Responsabilidade | Métodos |
+| Method | Path | Body | Success |
+|---|---|---|---|
+| `GET` | `/api/algorithms` | none | `{ "data": [metadata, ...] }` |
+| `POST` | `/api/encrypt` | `{ "algorithm", "input", "options" }` | `{ "result": "..." }` |
+| `POST` | `/api/decrypt` | `{ "algorithm", "input", "options" }` | `{ "result": "..." }` |
+| `POST` | `/api/hash` | `{ "algorithm", "input" }` | `{ "result": "..." }` |
+| `POST` | `/api/encode` | `{ "algorithm", "input" }` | `{ "result": "..." }` |
+| `POST` | `/api/decode` | `{ "algorithm", "input" }` | `{ "result": "..." }` |
+| `GET` | `/` | none | API status (name, status, version) |
+| `GET` | `/up` | none | health check |
+
+Errors always come as `{ "message": "..." }` (plus `errors` for request validation failures):
+
+| Status | When |
+|---|---|
+| `404` | unknown algorithm (`AlgorithmNotFoundException`) or route |
+| `405` | wrong HTTP method |
+| `422` | request validation failure; invalid options or key (`InvalidAlgorithmOptionsException` subclasses); operation the algorithm does not support (`UnsupportedOperationException`); result that is not valid UTF-8 text and cannot be carried in JSON (`NonTextResultException`) |
+| `429` | rate limit exceeded |
+
+---
+
+## Contracts and Interfaces
+
+The contracts live in `app/Cryptography/Contracts/`:
+
+| Contract | Responsibility | Methods |
 |---|---|---|
-| `DescribesAlgorithm` | Auto-descrição de metadados para consumo do frontend e documentação | `describe(): AlgorithmMetadata` |
-| `EncryptionAlgorithm` | Criptografia reversível com chave ou parâmetros de deslocamento | `encrypt(string $input, array $options = []): string`<br>`decrypt(string $input, array $options = []): string` |
-| `HashAlgorithm` | Digest unidirecional e irreversível (não possui decrypt) | `hash(string $input, array $options = []): string` |
-| `EncodingAlgorithm` | Transformação de representação sem garantias de confidencialidade | `encode(string $input): string`<br>`decode(string $input): string` |
+| `DescribesAlgorithm` | Self-describing metadata for the frontend and documentation | `describe(): AlgorithmMetadata` |
+| `EncryptionAlgorithm` | Reversible encryption with a key or shift parameters | `encrypt(string $input, array $options = []): string`<br>`decrypt(string $input, array $options = []): string` |
+| `HashAlgorithm` | One-way, irreversible digest (no decrypt) | `hash(string $input, array $options = []): string` |
+| `EncodingAlgorithm` | Change of representation with no confidentiality guarantees | `encode(string $input): string`<br>`decode(string $input): string` |
 
-### Esquema de opções (`GET /api/algorithms`)
+### Options schema (`GET /api/algorithms`)
 
-Cada algoritmo declara em `describe()` o **JSON Schema** das opções que aceita (campo `options`), montado com `App\Cryptography\Contracts\OptionsSchema`. O frontend pode gerar e validar o formulário a partir dele, sem duplicar regras:
+Each algorithm declares in `describe()` the **JSON Schema** of the options it accepts (the `options` field), built with `App\Cryptography\Contracts\OptionsSchema`. The frontend can generate and validate its form from it without duplicating rules:
 
 ```json
 {
@@ -69,71 +95,71 @@ Cada algoritmo declara em `describe()` o **JSON Schema** das opções que aceita
 }
 ```
 
-* Usa apenas palavras-chave idênticas no draft-07 e no 2020-12 e **não declara `$schema`**, para funcionar com validadores configurados para draft-07 (ex.: o AJV padrão do `react-jsonschema-form`).
-* Algoritmos sem opções (hashes e encodings) expõem um objeto vazio e fechado (`"properties": {}`).
-* Regras que um JSON Schema não expressa (ex.: matriz do Hill quadrada e inversível mod 26) continuam validadas só no back, que responde 422.
-* O servidor é mais tolerante que o schema (ex.: aceita `shift` como string numérica). O contrato garantido pelos testes é: o que o algoritmo recusa, o schema também recusa.
-* `requiresKey` é mantido por compatibilidade e equivale a `options.required` não ser vazio.
+* Only keywords that are identical in draft-07 and 2020-12 are used, and **`$schema` is not declared**, so it works with validators set up for draft-07 (e.g. the default AJV in `react-jsonschema-form`).
+* Algorithms without options (hashes and encodings) expose an empty, closed object (`"properties": {}`).
+* Rules JSON Schema cannot express (e.g. a Hill matrix that is square and invertible mod 26) are only validated by the backend, which answers 422.
+* The server is more lenient than the schema (e.g. it accepts `shift` as a numeric string). The contract enforced by the tests is: whatever the algorithm rejects, the schema rejects too.
+* `requiresKey` is kept for compatibility and is equivalent to `options.required` being non-empty.
 
 ---
 
-## Algoritmos Implementados e Limitações
+## Implemented Algorithms and Limitations
 
-### Cifras Clássicas
-* **Caesar (`caesar`)**: Cifra de substituição por deslocamento modular (`C = (P + shift) mod 26`). Apenas letras ASCII (`A-Z`, `a-z`) sofrem rotação; caracteres acentuados, números, símbolos e caracteres multibyte UTF-8 são preservados sem alteração.
-* **Vigenère (`vigenere`)**: Cifra polialfabética por soma modular com repetição de chave (`C = (P + K) mod 26`). Caracteres não alfabéticos e acentos são preservados e **não avançam o ponteiro da chave**, mantendo a sincronia do deslocamento letra a letra.
-* **Hill (`hill`)**: Cifra poligráfica baseada em álgebra linear matricial (`C = K × P mod 26`).
-  * *Limitação*: Opera estritamente sobre blocos fixos de letras ASCII em maiúsculas. Caracteres acentuados, espaços e pontuações são descartados. Se o tamanho do texto não for múltiplo da dimensão da matriz, o último bloco é preenchido com `X`. Exige que o determinante da matriz-chave seja coprimo de 26 (`mdc(det, 26) = 1`).
+### Classical ciphers
+* **Caesar (`caesar`)**: substitution cipher with a modular shift (`C = (P + shift) mod 26`). Only ASCII letters (`A-Z`, `a-z`) are rotated; accented characters, digits, symbols and multibyte UTF-8 characters are preserved unchanged.
+* **Vigenère (`vigenere`)**: polyalphabetic cipher based on a modular sum with a repeating key (`C = (P + K) mod 26`). Non-alphabetic and accented characters are preserved and **do not advance the key position**, keeping the shift in sync letter by letter.
+* **Hill (`hill`)**: polygraphic cipher based on matrix algebra (`C = K × P mod 26`).
+  * *Limitation*: it works strictly on fixed blocks of uppercase ASCII letters. Accented characters, spaces and punctuation are dropped. If the text length is not a multiple of the matrix size, the last block is padded with `X`. The key matrix's determinant must be coprime with 26 (`gcd(det, 26) = 1`).
 
-### Criptografia Moderna
-* **AES-256-GCM (`aes-256-gcm`)**: Criptografia autenticada moderna delegada à extensão nativa OpenSSL (`openssl_encrypt`/`openssl_decrypt`).
-  * Gera um nonce criptográfico aleatório de 12 bytes a cada execução.
-  * Produz uma tag de autenticação GCM de 16 bytes para verificação de integridade.
-  * O retorno empacota `base64(nonce . tag . ciphertext)`.
-  * **Aviso didático de segurança**: A chave informada é convertida em 256 bits via `hash('sha256', $key, binary: true)`. Isso é uma simplificação deliberada para permitir qualquer string como chave neste demonstrativo. Em produção, chaves devem ser derivadas com KDFs dedicadas (ex.: Argon2id ou PBKDF2) acompanhadas de salt e fator de trabalho.
+### Modern encryption
+* **AES-256-GCM (`aes-256-gcm`)**: modern authenticated encryption delegated to PHP's native OpenSSL extension (`openssl_encrypt`/`openssl_decrypt`).
+  * Generates a random 12-byte cryptographic nonce on every call.
+  * Produces a 16-byte GCM authentication tag for integrity checking.
+  * The output packs `base64(nonce . tag . ciphertext)`.
+  * **Educational security note**: the given key is turned into 256 bits with `hash('sha256', $key, binary: true)`. This is a deliberate simplification so any string can be used as a key in this demo. In production, keys must be derived with dedicated KDFs (e.g. Argon2id or PBKDF2) with a salt and a work factor.
 
-### Funções de Hash
-* **SHA-256 (`sha-256`)**: Digest determinístico de 256 bits (64 caracteres hexadecimais) via `hash()`.
-* **SHA-512 (`sha-512`)**: Digest determinístico de 512 bits (128 caracteres hexadecimais) via `hash()`.
+### Hash functions
+* **SHA-256 (`sha-256`)**: deterministic 256-bit digest (64 hex characters) via `hash()`.
+* **SHA-512 (`sha-512`)**: deterministic 512-bit digest (128 hex characters) via `hash()`.
 
 ### Encodings
-* **Base64 (`base64`)** e **Hex (`hex`)**: Mudança de representação binária para texto ASCII. Não conferem confidencialidade ou autenticidade.
+* **Base64 (`base64`)** and **Hex (`hex`)**: change binary data into ASCII text. They provide no confidentiality or authenticity.
 
 ---
 
-## Como Adicionar um Novo Algoritmo
+## Adding a New Algorithm
 
-Para adicionar um algoritmo sem alterar o código existente (Open/Closed):
+To add an algorithm without changing existing code (Open/Closed):
 
-1. **Criar a classe do algoritmo**: Crie um diretório em `app/Cryptography/{NomeDoAlgoritmo}/`. A classe deve implementar `DescribesAlgorithm` e um dos contratos de operação (`EncryptionAlgorithm`, `HashAlgorithm` ou `EncodingAlgorithm`), e declarar em `describe()` o schema das opções (`OptionsSchema::object(...)` ou `OptionsSchema::none()`).
-2. **Definir exceções dedicadas**: Se o algoritmo exigir validações específicas de opções ou chaves, crie uma classe de exceção que herde de `App\Cryptography\Contracts\InvalidAlgorithmOptionsException`.
-3. **Registrar no Service Provider**: Adicione uma única linha em `app/Providers/CryptographyServiceProvider.php`. O identificador é lido de `describe()->id` (ids duplicados são recusados):
+1. **Create the algorithm class**: create a directory `app/Cryptography/{AlgorithmName}/`. The class must implement `DescribesAlgorithm` and one of the operation contracts (`EncryptionAlgorithm`, `HashAlgorithm` or `EncodingAlgorithm`), and declare its options schema in `describe()` (`OptionsSchema::object(...)` or `OptionsSchema::none()`).
+2. **Define dedicated exceptions**: if the algorithm needs specific option or key validation, create an exception class extending `App\Cryptography\Contracts\InvalidAlgorithmOptionsException`. Messages are exposed to API clients, so write them in English.
+3. **Register it in the service provider**: add a single line to `app/Providers/CryptographyServiceProvider.php`. The identifier is read from `describe()->id` (duplicate ids are rejected):
    ```php
-   $registry->register($app->make(NovoAlgoritmo::class));
+   $registry->register($app->make(NewAlgorithm::class));
    ```
-4. **Adicionar testes unitários**: Crie a suíte em `tests/Unit/Cryptography/{NomeDoAlgoritmo}/` validando reversibilidade, entradas inválidas, strings vazias e metadados.
-5. **Testes de contrato**: `tests/Contract/AlgorithmContractTest.php` verifica automaticamente todo algoritmo registrado (coerência dos metadados com o contrato implementado, reversibilidade, determinismo do hash e erros de opções). Algoritmos de criptografia precisam apenas de uma entrada em `ENCRYPTION_FIXTURES` com opções válidas (`options`) e opções que devem ser recusadas (`invalid`); a suíte confere que o JSON Schema concorda com o algoritmo nos dois casos.
+4. **Add unit tests**: create the suite in `tests/Unit/Cryptography/{AlgorithmName}/`, covering reversibility, invalid input, empty strings and metadata.
+5. **Contract tests**: `tests/Contract/AlgorithmContractTest.php` automatically checks every registered algorithm (metadata consistent with the implemented contract, reversibility, hash determinism, option errors). Encryption algorithms only need an entry in `ENCRYPTION_FIXTURES` with valid options (`options`) and options that must be rejected (`invalid`); the suite checks that the JSON Schema agrees with the algorithm in both cases.
 
 ---
 
-## Execução e Testes
+## Running and Testing
 
-### Requisitos
-* PHP 8.3 ou superior
-* Extensão OpenSSL do PHP habilitada
+### Requirements
+* PHP 8.3 or later
+* PHP OpenSSL extension enabled
 * Composer 2+
 
-### Instalação e Execução
+### Install and run
 ```bash
 composer install
 cp .env.example .env
 php artisan key:generate
 
-# Iniciar servidor da API
+# Start the API server
 php artisan serve
 ```
 
-### Executar Testes
+### Run the tests
 ```bash
 php artisan test
 ```
@@ -142,13 +168,13 @@ php artisan test
 
 ## Deploy (Docker / Render)
 
-A imagem (`Dockerfile`) usa `php:8.3-apache`, instala apenas dependências de produção e escuta na porta definida pela variável `PORT` (injetada pelo Render; padrão `8080`). Na inicialização, `docker/start.sh` gera os caches de config e rotas.
+The image (`Dockerfile`) uses `php:8.3-apache`, installs production dependencies only and listens on the port set by the `PORT` variable (injected by Render; `8080` by default). At startup, `docker/start.sh` builds the config and route caches.
 
-Padrões já definidos na imagem: `APP_ENV=production`, `APP_DEBUG=false`, `LOG_CHANNEL=stderr`, `CACHE_STORE=file`, `SESSION_DRIVER=array`.
+Defaults already set in the image: `APP_ENV=production`, `APP_DEBUG=false`, `LOG_CHANNEL=stderr`, `CACHE_STORE=file`, `SESSION_DRIVER=array`.
 
 ```bash
 docker build -t criptografy-api .
 docker run --rm -e PORT=8080 -p 8080:8080 criptografy-api
 ```
 
-No Render: criar um **Web Service** com runtime **Docker** apontando para este repositório e usar `/up` como *Health Check Path*. A API não usa sessão nem cookies, então `APP_KEY` não é necessária para o funcionamento atual.
+On Render: create a **Web Service** with the **Docker** runtime pointing to this repository, and use `/up` as the *Health Check Path*. The API uses no sessions or cookies, so `APP_KEY` is not required for the current setup.

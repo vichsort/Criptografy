@@ -21,8 +21,8 @@ final class ApiStatusTest extends TestCase
 
     public function test_root_works_without_application_key(): void
     {
-        // A API não criptografa cookies nem usa sessão; a falta de APP_KEY
-        // não pode derrubar o endpoint de status.
+        // The API neither encrypts cookies nor uses sessions; a missing
+        // APP_KEY must not take down the status endpoint.
         config(['app.key' => null]);
 
         $this->getJson('/')->assertOk();
@@ -38,8 +38,8 @@ final class ApiStatusTest extends TestCase
 
     public function test_local_storage_files_are_not_served_over_http(): void
     {
-        // A API não armazena arquivos; as rotas storage/{path} (GET e PUT)
-        // que o Laravel registra para o disco "local" não têm uso aqui.
+        // The API stores no files; the storage/{path} routes (GET and PUT)
+        // Laravel registers for the "local" disk have no use here.
         $this->assertFalse(Route::has('storage.local'));
         $this->assertFalse(Route::has('storage.local.upload'));
     }
@@ -47,7 +47,7 @@ final class ApiStatusTest extends TestCase
     public function test_api_allows_cors_preflight_requests(): void
     {
         $response = $this->withHeaders([
-            'Origin' => 'https://meudominio.com',
+            'Origin' => 'https://example.com',
             'Access-Control-Request-Method' => 'POST',
             'Access-Control-Request-Headers' => 'Content-Type',
         ])->options('/api/encrypt');

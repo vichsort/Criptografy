@@ -13,18 +13,18 @@ final class IntegerResidueTest extends TestCase
      */
     public static function integerLikeValues(): iterable
     {
-        yield 'int positivo' => [29, 3];
-        yield 'int negativo' => [-1, 25];
+        yield 'positive int' => [29, 3];
+        yield 'negative int' => [-1, 25];
         yield 'zero' => [0, 0];
         yield 'PHP_INT_MAX' => [PHP_INT_MAX, 7];
         yield 'PHP_INT_MIN' => [PHP_INT_MIN, 18];
-        yield 'float inteiro' => [3.0, 3];
-        yield 'string positiva' => ['29', 3];
-        yield 'string negativa' => ['-1', 25];
-        yield 'string com zero à esquerda' => ['03', 3];
-        yield 'string menos zero' => ['-0', 0];
-        yield 'string além do int de 64 bits' => ['99999999999999999999', 21];
-        yield 'string negativa além do int' => ['-99999999999999999999', 5];
+        yield 'integral float' => [3.0, 3];
+        yield 'positive string' => ['29', 3];
+        yield 'negative string' => ['-1', 25];
+        yield 'string with leading zero' => ['03', 3];
+        yield 'string minus zero' => ['-0', 0];
+        yield 'string beyond 64-bit int' => ['99999999999999999999', 21];
+        yield 'negative string beyond int' => ['-99999999999999999999', 5];
     }
 
     #[DataProvider('integerLikeValues')]
@@ -38,18 +38,18 @@ final class IntegerResidueTest extends TestCase
      */
     public static function nonIntegerValues(): iterable
     {
-        yield 'sinal duplicado' => ['--3'];
-        yield 'sinal no fim' => ['3-'];
-        yield 'sinal de mais' => ['+3'];
-        yield 'só o sinal' => ['-'];
-        yield 'string vazia' => [''];
-        yield 'espaços' => [' 3 '];
-        yield 'decimal em string' => ['3.0'];
-        yield 'float fracionário' => [3.5];
-        yield 'float além da precisão exata' => [1e20];
-        yield 'infinito' => [INF];
+        yield 'double sign' => ['--3'];
+        yield 'trailing sign' => ['3-'];
+        yield 'plus sign' => ['+3'];
+        yield 'sign only' => ['-'];
+        yield 'empty string' => [''];
+        yield 'surrounding spaces' => [' 3 '];
+        yield 'decimal string' => ['3.0'];
+        yield 'fractional float' => [3.5];
+        yield 'float beyond exact precision' => [1e20];
+        yield 'infinity' => [INF];
         yield 'NaN' => [NAN];
-        yield 'booleano' => [true];
+        yield 'boolean' => [true];
         yield 'null' => [null];
         yield 'array' => [[3]];
     }

@@ -12,7 +12,7 @@ yarn-error.log
 .DS_Store
 Thumbs.db
 
-# Artefatos de runtime do Laravel (mantém apenas os .gitkeep)
+# Laravel runtime artifacts (only the .gitkeep files are kept)
 /storage/logs/*.log
 /storage/framework/cache/data/*
 !/storage/framework/cache/data/.gitkeep

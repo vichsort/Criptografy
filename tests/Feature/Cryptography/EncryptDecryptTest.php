@@ -158,13 +158,13 @@ final class EncryptDecryptTest extends TestCase
         $encrypted = $this->postJson('/api/encrypt', [
             'algorithm' => 'aes-256-gcm',
             'input' => $payload,
-            'options' => ['key' => 'senha-forte'],
+            'options' => ['key' => 'strong-password'],
         ])->json('result');
 
         $decrypted = $this->postJson('/api/decrypt', [
             'algorithm' => 'aes-256-gcm',
             'input' => $encrypted,
-            'options' => ['key' => 'senha-forte'],
+            'options' => ['key' => 'strong-password'],
         ]);
 
         $decrypted->assertOk();
@@ -173,8 +173,8 @@ final class EncryptDecryptTest extends TestCase
 
     public function test_key_made_only_of_spaces_is_a_valid_aes_key(): void
     {
-        // Espaços na chave são dados, assim como no input: não podem ser
-        // removidos pelo TrimStrings antes de chegar ao algoritmo.
+        // Whitespace in the key is data, just like in the input: TrimStrings
+        // must not strip it before it reaches the algorithm.
         $response = $this->postJson('/api/encrypt', [
             'algorithm' => 'aes-256-gcm',
             'input' => 'hello',

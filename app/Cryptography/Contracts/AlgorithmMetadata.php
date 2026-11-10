@@ -5,9 +5,8 @@ namespace App\Cryptography\Contracts;
 use JsonSerializable;
 
 /**
- * Metadados que um algoritmo expõe sobre si mesmo, para que o frontend
- * possa renderizar os controles necessários sem duplicar as regras de
- * cada algoritmo (Seções 15 e 16).
+ * Metadata an algorithm exposes about itself, so the frontend can render the
+ * controls it needs without duplicating each algorithm's rules.
  */
 final readonly class AlgorithmMetadata implements JsonSerializable
 {
@@ -22,7 +21,7 @@ final readonly class AlgorithmMetadata implements JsonSerializable
         public bool $requiresKey,
         public string $securityLevel,
         /**
-         * JSON Schema das opções aceitas (ver OptionsSchema).
+         * JSON Schema of the accepted options (see OptionsSchema).
          *
          * @var array<string, mixed>
          */

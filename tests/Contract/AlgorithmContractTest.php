@@ -12,15 +12,14 @@ use Opis\JsonSchema\Validator;
 use Tests\TestCase;
 
 /**
- * Testes de contrato (Seção 22): verificam, para TODO algoritmo registrado
- * no Registry real, o comportamento que cada interface promete. Um algoritmo
- * novo é coberto automaticamente ao ser registrado no
- * CryptographyServiceProvider; algoritmos de criptografia só precisam de
- * uma entrada em ENCRYPTION_FIXTURES.
+ * Contract tests: for EVERY algorithm registered in the real Registry, they
+ * check the behavior each interface promises. A new algorithm is covered
+ * automatically once it is registered in CryptographyServiceProvider;
+ * encryption algorithms only need an entry in ENCRYPTION_FIXTURES.
  */
 final class AlgorithmContractTest extends TestCase
 {
-    /** Textos que algoritmos que preservam o texto devem conseguir ida e volta. */
+    /** Texts that text-preserving algorithms must round-trip. */
     private const TEXT_SAMPLES = [
         '',
         'Attack at dawn',
@@ -29,13 +28,14 @@ final class AlgorithmContractTest extends TestCase
     ];
 
     /**
-     * - options: opções válidas;
-     * - invalid: opções que o algoritmo recusa E que o schema consegue
-     *   expressar (ex.: "matriz não inversível" não entra — JSON Schema não
-     *   calcula determinante);
-     * - samples: quando o algoritmo não preserva qualquer texto, amostras do
-     *   seu espaço de mensagens. Hill: só letras maiúsculas, em quantidade
-     *   múltipla do tamanho do bloco (12 letras servem para blocos de 2 a 6).
+     * - options: valid options;
+     * - invalid: options the algorithm rejects AND the schema can express
+     *   (e.g. "non-invertible matrix" is left out: JSON Schema cannot
+     *   compute a determinant);
+     * - samples: when the algorithm does not preserve arbitrary text,
+     *   samples from its message space. Hill: uppercase letters only, in a
+     *   count that is a multiple of the block size (12 letters fit blocks
+     *   of 2 to 6).
      *
      * @var array<string, array{options: array<string, mixed>, invalid: list<array<string, mixed>>, samples?: list<string>}>
      */
@@ -145,8 +145,8 @@ final class AlgorithmContractTest extends TestCase
 
     public function test_encryption_without_options_fails_with_a_domain_exception(): void
     {
-        // Opções ausentes devem virar InvalidAlgorithmOptionsException (422),
-        // nunca um erro genérico (500).
+        // Missing options must raise InvalidAlgorithmOptionsException (422),
+        // never a generic error (500).
         foreach ($this->algorithms(EncryptionAlgorithm::class) as $id => $algorithm) {
             foreach (['encrypt', 'decrypt'] as $operation) {
                 try {
@@ -206,8 +206,8 @@ final class AlgorithmContractTest extends TestCase
 
     public function test_options_the_algorithm_rejects_are_rejected_by_the_schema(): void
     {
-        // Garante que validar no front com o schema dá o mesmo veredito que o
-        // back, para tudo o que um JSON Schema consegue expressar.
+        // Ensures that validating with the schema on the frontend gives the
+        // same verdict as the backend, for everything JSON Schema can express.
         foreach ($this->algorithms(EncryptionAlgorithm::class) as $id => $algorithm) {
             $invalid = self::ENCRYPTION_FIXTURES[$id]['invalid'] ?? $this->fail("Missing fixture for \"{$id}\"");
 
@@ -258,7 +258,7 @@ final class AlgorithmContractTest extends TestCase
     }
 
     /**
-     * @param  class-string|null  $contract  filtra pelos algoritmos que implementam este contrato.
+     * @param  class-string|null  $contract  keeps only the algorithms that implement this contract.
      * @return array<string, DescribesAlgorithm>
      */
     private function algorithms(?string $contract = null): array
@@ -280,7 +280,7 @@ final class AlgorithmContractTest extends TestCase
     }
 
     /**
-     * O schema exatamente como o cliente o recebe (após serializar em JSON).
+     * The schema exactly as the client receives it (after JSON serialization).
      */
     private function optionsSchemaOf(DescribesAlgorithm $algorithm): \stdClass
     {
@@ -292,7 +292,7 @@ final class AlgorithmContractTest extends TestCase
      */
     private function schemaAccepts(DescribesAlgorithm $algorithm, array $options): bool
     {
-        // (object): opções vazias precisam virar {} no JSON, não [].
+        // (object): empty options must become {} in JSON, not [].
         $data = json_decode(json_encode((object) $options, JSON_THROW_ON_ERROR), flags: JSON_THROW_ON_ERROR);
 
         return (new Validator)->validate($data, $this->optionsSchemaOf($algorithm))->isValid();

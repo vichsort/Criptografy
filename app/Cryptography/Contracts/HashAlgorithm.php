@@ -3,11 +3,11 @@
 namespace App\Cryptography\Contracts;
 
 /**
- * Comportamento esperado de um algoritmo de hashing (SHA-256, SHA-512, ...).
+ * Expected behavior of a hashing algorithm (SHA-256, SHA-512, ...).
  *
- * Propositalmente não possui método de "descriptografar" — Hash != Encryption
- * (Seção 13 da especificação). Interface Segregation (Seção 20): um hash não
- * é obrigado a implementar EncryptionAlgorithm.
+ * Deliberately has no "decrypt" method: hashing is not encryption. Following
+ * Interface Segregation, a hash is never forced to implement
+ * EncryptionAlgorithm.
  */
 interface HashAlgorithm
 {

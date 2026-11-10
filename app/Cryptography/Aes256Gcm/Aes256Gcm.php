@@ -8,33 +8,33 @@ use App\Cryptography\Contracts\EncryptionAlgorithm;
 use App\Cryptography\Contracts\OptionsSchema;
 
 /**
- * AES-256-GCM: criptografia moderna autenticada.
+ * AES-256-GCM: modern authenticated encryption.
  *
- * Ao contrário de Caesar/Vigenère/Hill, este módulo NÃO reimplementa o AES
- * (SubBytes, ShiftRows, MixColumns, AddRoundKey, ...) — isso seria risco sem
- * benefício para o produto (Seção 12). Toda a operação criptográfica em si
- * é delegada à extensão OpenSSL do PHP. A responsabilidade deste módulo é:
+ * Unlike Caesar/Vigenère/Hill, this module does NOT reimplement AES
+ * (SubBytes, ShiftRows, MixColumns, AddRoundKey, ...): that would add risk
+ * with no benefit. The cryptographic operation itself is delegated to PHP's
+ * OpenSSL extension. This module is responsible for:
  *
- *     validar entrada -> validar/derivar chave -> gerar nonce ->
- *     chamar openssl_encrypt/openssl_decrypt -> montar/parsear o resultado
+ *     validate input -> validate/derive key -> generate nonce ->
+ *     call openssl_encrypt/openssl_decrypt -> build/parse the result
  *
- * Formato do resultado de encrypt() (e entrada esperada de decrypt()):
- * base64( nonce[12 bytes] . tag[16 bytes] . ciphertext ). Empacotar nonce e
- * tag junto ao ciphertext evita que o chamador precise gerenciá-los
- * separadamente — comum em ferramentas educacionais como esta.
+ * Format of encrypt()'s output (and of decrypt()'s expected input):
+ * base64( nonce[12 bytes] . tag[16 bytes] . ciphertext ). Packing the nonce
+ * and tag with the ciphertext spares the caller from managing them
+ * separately, which is common in educational tools like this one.
  *
- * Nota sobre a chave: a chave informada pelo usuário (uma string qualquer)
- * é transformada em uma chave de 256 bits via SHA-256. Isso NÃO é uma KDF
- * apropriada para senhas reais (faltam salt e custo computacional, ex.:
- * Argon2id/PBKDF2) — é uma simplificação deliberada para que qualquer
- * string sirva como "chave" neste demonstrativo. Documentado aqui de
- * propósito, para não passar a falsa impressão de segurança de produção.
+ * Note on the key: the user-supplied key (any string) is turned into a
+ * 256-bit key with SHA-256. This is NOT a proper KDF for real passwords (it
+ * lacks a salt and a work factor, e.g. Argon2id/PBKDF2); it is a deliberate
+ * simplification so any string can serve as a "key" in this demo. It is
+ * documented here on purpose, so it does not give a false impression of
+ * production-grade security.
  */
 final class Aes256Gcm implements DescribesAlgorithm, EncryptionAlgorithm
 {
     private const CIPHER = 'aes-256-gcm';
 
-    private const NONCE_LENGTH = 12; // 96 bits — recomendado para GCM
+    private const NONCE_LENGTH = 12; // 96 bits, the recommended size for GCM
 
     private const TAG_LENGTH = 16; // 128 bits
 
@@ -56,8 +56,9 @@ final class Aes256Gcm implements DescribesAlgorithm, EncryptionAlgorithm
         );
 
         if ($ciphertext === false) {
-            // Só ocorreria por um erro de ambiente (ex.: cipher indisponível),
-            // já verificamos isso indiretamente ao construir a aplicação.
+            // Only happens on an environment error (e.g. the cipher is
+            // unavailable), which bootstrapping the application already
+            // checks indirectly.
             throw new \RuntimeException('Unexpected failure while encrypting with AES-256-GCM.');
         }
 
@@ -111,8 +112,8 @@ final class Aes256Gcm implements DescribesAlgorithm, EncryptionAlgorithm
             throw Aes256GcmException::emptyKey();
         }
 
-        // Deriva 32 bytes (256 bits) a partir de uma string de qualquer
-        // tamanho. Ver nota de segurança no docblock da classe.
+        // Derives 32 bytes (256 bits) from a string of any length. See the
+        // security note in the class docblock.
         return hash('sha256', $key, binary: true);
     }
 

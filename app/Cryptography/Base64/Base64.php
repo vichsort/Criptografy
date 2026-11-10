@@ -8,13 +8,13 @@ use App\Cryptography\Contracts\EncodingAlgorithm;
 use App\Cryptography\Contracts\OptionsSchema;
 
 /**
- * Base64 via base64_encode()/base64_decode() nativos do PHP.
+ * Base64 via PHP's native base64_encode()/base64_decode().
  *
- * supportsEncryption e supportsDecryption ficam false propositalmente: este
- * módulo implementa EncodingAlgorithm (encode/decode), não
- * EncryptionAlgorithm (encrypt/decrypt) — são contratos e endpoints HTTP
- * diferentes (/api/encode e /api/decode, não /api/encrypt e /api/decrypt).
- * Base64 não possui chave nem noção de segurança (Seção 14).
+ * supportsEncryption and supportsDecryption are deliberately false: this
+ * module implements EncodingAlgorithm (encode/decode), not
+ * EncryptionAlgorithm (encrypt/decrypt). They are different contracts and
+ * HTTP endpoints (/api/encode and /api/decode, not /api/encrypt and
+ * /api/decrypt). Base64 has no key and no notion of security.
  */
 final class Base64 implements DescribesAlgorithm, EncodingAlgorithm
 {
@@ -25,9 +25,9 @@ final class Base64 implements DescribesAlgorithm, EncodingAlgorithm
 
     public function decode(string $input): string
     {
-        // O modo estrito faz base64_decode() retornar false diante de
-        // qualquer caractere fora do alfabeto Base64, em vez de tentar
-        // adivinhar/ignorar o lixo silenciosamente.
+        // Strict mode makes base64_decode() return false on any character
+        // outside the Base64 alphabet, instead of silently guessing or
+        // ignoring the garbage.
         $decoded = base64_decode($input, true);
 
         if ($decoded === false) {

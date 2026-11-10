@@ -17,7 +17,7 @@ final class VigenereTest extends TestCase
 
     public function test_encrypts_the_classic_lemon_example(): void
     {
-        // Exemplo clássico de referência (Wikipedia): key=LEMON.
+        // Classic reference example (Wikipedia): key=LEMON.
         $this->assertSame(
             'LXFOPVEFRNHR',
             $this->vigenere->encrypt('ATTACKATDAWN', ['key' => 'LEMON']),
@@ -46,8 +46,8 @@ final class VigenereTest extends TestCase
     {
         $cipher = $this->vigenere->encrypt('Attack', ['key' => 'LEMON']);
 
-        // A 1ª letra do plaintext ("A" em "Attack") é maiúscula,
-        // então a 1ª letra do cifrado também deve ser.
+        // The plaintext's first letter ("A" in "Attack") is uppercase,
+        // so the ciphertext's first letter must be too.
         $this->assertTrue(ctype_upper($cipher[0]));
     }
 
@@ -91,8 +91,8 @@ final class VigenereTest extends TestCase
     public function test_unicode_and_accented_characters_are_preserved(): void
     {
         $plain = 'Mensagem com acentuação: café & pão! 🔒';
-        $encrypted = $this->vigenere->encrypt($plain, ['key' => 'CHAVE']);
-        $decrypted = $this->vigenere->decrypt($encrypted, ['key' => 'CHAVE']);
+        $encrypted = $this->vigenere->encrypt($plain, ['key' => 'SECRET']);
+        $decrypted = $this->vigenere->decrypt($encrypted, ['key' => 'SECRET']);
 
         $this->assertSame($plain, $decrypted);
         $this->assertStringContainsString('é', $encrypted);

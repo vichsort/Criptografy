@@ -1,7 +1,7 @@
 {
     "name": "criptografy/criptografy",
     "type": "project",
-    "description": "API REST educacional de criptografia, hashing e encoding, construida em Laravel.",
+    "description": "Educational REST API for cryptography, hashing and encoding, built with Laravel.",
     "keywords": ["laravel", "api", "cryptography", "education"],
     "license": "MIT",
     "require": {

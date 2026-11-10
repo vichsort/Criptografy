@@ -8,11 +8,11 @@ use App\Cryptography\Contracts\HashAlgorithm;
 use App\Cryptography\Contracts\OptionsSchema;
 
 /**
- * SHA-256 via hash() nativo do PHP. Sem implementação manual — reproduzir
- * uma função de hash existente não agregaria nada ao produto (Seção 13).
+ * SHA-256 via PHP's native hash(). No manual implementation: reproducing an
+ * existing hash function would add nothing.
  *
- * Hash != Encryption: não implementa EncryptionAlgorithm, não possui
- * decrypt() (Interface Segregation, Seção 20).
+ * Hashing is not encryption: it does not implement EncryptionAlgorithm and
+ * has no decrypt() (Interface Segregation).
  */
 final class Sha256 implements DescribesAlgorithm, HashAlgorithm
 {

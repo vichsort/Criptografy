@@ -22,9 +22,9 @@ final class RateLimitTest extends TestCase
 
     public function test_clients_behind_a_proxy_are_limited_by_their_own_ip(): void
     {
-        // No Render todas as requisições chegam pelo proxy da plataforma. Sem
-        // confiar no X-Forwarded-For, todos os clientes dividiriam um único
-        // limite (o do IP do proxy).
+        // On Render every request arrives through the platform's proxy.
+        // Without trusting X-Forwarded-For, all clients would share a single
+        // limit (the proxy IP's).
         config(['app.api_rate_limit' => 1]);
 
         $this->hash(forwardedFor: '203.0.113.1')->assertOk();

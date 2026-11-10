@@ -14,7 +14,7 @@ return [
     'previous_keys' => array_filter(
         explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
     ),
-    // Requisições por minuto, por IP, em todas as rotas do grupo "api".
+    // Requests per minute, per IP, on every route in the "api" group.
     'api_rate_limit' => (int) env('API_RATE_LIMIT', 60),
     'maintenance' => [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),

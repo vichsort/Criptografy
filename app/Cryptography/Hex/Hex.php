@@ -8,10 +8,10 @@ use App\Cryptography\Contracts\EncodingAlgorithm;
 use App\Cryptography\Contracts\OptionsSchema;
 
 /**
- * Hexadecimal via bin2hex()/hex2bin() nativos do PHP.
+ * Hexadecimal via PHP's native bin2hex()/hex2bin().
  *
- * Assim como Base64: implementa EncodingAlgorithm, não EncryptionAlgorithm
- * (Seção 14) — sem chave, sem noção de segurança.
+ * Like Base64, it implements EncodingAlgorithm, not EncryptionAlgorithm: no
+ * key and no notion of security.
  */
 final class Hex implements DescribesAlgorithm, EncodingAlgorithm
 {

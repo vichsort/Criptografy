@@ -7,13 +7,13 @@ use App\Cryptography\Contracts\DescribesAlgorithm;
 use LogicException;
 
 /**
- * Associa um identificador estável (ex.: "caesar", "vigenere") à sua
- * implementação, para que o restante da aplicação nunca precise de uma
- * sequência de `if ($algorithm === 'caesar') ...` (Seção 9).
+ * Maps a stable identifier (e.g. "caesar", "vigenere") to its implementation,
+ * so the rest of the application never needs a chain of
+ * `if ($algorithm === 'caesar') ...`.
  *
- * O Registry não sabe *como* cada algoritmo funciona — apenas onde
- * encontrá-lo. Isso evita acoplamento entre controllers e implementações
- * concretas (Dependency Inversion, Seção 20).
+ * The Registry does not know *how* each algorithm works, only where to find
+ * it. This keeps controllers decoupled from concrete implementations
+ * (Dependency Inversion).
  */
 final class Registry
 {
@@ -21,11 +21,11 @@ final class Registry
     private array $algorithms = [];
 
     /**
-     * O id usado no registro é o próprio describe()->id, para que o
-     * identificador exista em um único lugar e nunca divirja do que
-     * GET /api/algorithms anuncia.
+     * The algorithm is registered under its own describe()->id, so the
+     * identifier lives in a single place and never diverges from what
+     * GET /api/algorithms announces.
      *
-     * @throws LogicException quando outro algoritmo já usa o mesmo id.
+     * @throws LogicException when another algorithm already uses the same id.
      */
     public function register(DescribesAlgorithm $algorithm): void
     {
@@ -52,9 +52,9 @@ final class Registry
     }
 
     /**
-     * Metadados de todos os algoritmos registrados, para o endpoint
-     * GET /api/algorithms (Seção 19) e para o frontend descobrir os
-     * algoritmos disponíveis sem os codificar manualmente (Seção 16).
+     * Metadata of every registered algorithm, served by GET /api/algorithms
+     * so the frontend can discover the available algorithms without
+     * hardcoding them.
      *
      * @return list<AlgorithmMetadata>
      */

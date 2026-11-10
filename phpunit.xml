@@ -5,17 +5,17 @@
          colors="true"
 >
     <testsuites>
-        <!-- Testes unitários de cada algoritmo (Cryptography/{Algoritmo}) -->
+        <!-- Unit tests for each algorithm (Cryptography/{Algorithm}) -->
         <testsuite name="Unit">
             <directory suffix="Test.php">./tests/Unit</directory>
         </testsuite>
 
-        <!-- Testes de integração: HTTP -> Controller -> Registry -> Algoritmo -> Response -->
+        <!-- Integration tests: HTTP -> Controller -> Registry -> Algorithm -> Response -->
         <testsuite name="Feature">
             <directory suffix="Test.php">./tests/Feature</directory>
         </testsuite>
 
-        <!-- Testes de contrato: rodam sobre todo algoritmo registrado no Registry (Seção 22) -->
+        <!-- Contract tests: run against every algorithm registered in the Registry -->
         <testsuite name="Contract">
             <directory suffix="Test.php">./tests/Contract</directory>
         </testsuite>

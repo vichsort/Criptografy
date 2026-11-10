@@ -27,8 +27,8 @@ final class AlgorithmControllerTest extends TestCase
 
     public function test_algorithms_without_options_expose_an_empty_object_schema(): void
     {
-        // "properties" precisa ser um objeto JSON ({}), não um array ([]):
-        // validadores de JSON Schema recusam o segundo.
+        // "properties" must be a JSON object ({}), not an array ([]):
+        // JSON Schema validators reject the latter.
         $algorithms = json_decode($this->getJson('/api/algorithms')->getContent())->data;
         $sha256 = collect($algorithms)->firstWhere('id', 'sha-256');
 
