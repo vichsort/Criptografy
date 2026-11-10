@@ -28,6 +28,10 @@ final class CryptographyOperationRequest extends FormRequest
      */
     public function options(): array
     {
-        return $this->input('options', []);
+        // The "array" rule above guarantees the type; this only narrows it.
+        /** @var array<string, mixed> $options */
+        $options = $this->input('options', []);
+
+        return $options;
     }
 }
