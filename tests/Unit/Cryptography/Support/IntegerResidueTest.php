@@ -19,6 +19,8 @@ final class IntegerResidueTest extends TestCase
         yield 'PHP_INT_MAX' => [PHP_INT_MAX, 7];
         yield 'PHP_INT_MIN' => [PHP_INT_MIN, 18];
         yield 'integral float' => [3.0, 3];
+        yield 'largest safe float' => [9007199254740991.0, 5];
+        yield 'smallest safe float' => [-9007199254740991.0, 21];
         yield 'positive string' => ['29', 3];
         yield 'negative string' => ['-1', 25];
         yield 'string with leading zero' => ['03', 3];
@@ -46,6 +48,10 @@ final class IntegerResidueTest extends TestCase
         yield 'surrounding spaces' => [' 3 '];
         yield 'decimal string' => ['3.0'];
         yield 'fractional float' => [3.5];
+        // 2^53 is where floats stop representing every integer: the JSON
+        // number 9007199254740993.0 is decoded as 2^53, so 2^53 is ambiguous.
+        yield 'float at 2^53' => [9007199254740992.0];
+        yield 'float at -2^53' => [-9007199254740992.0];
         yield 'float beyond exact precision' => [1e20];
         yield 'infinity' => [INF];
         yield 'NaN' => [NAN];
