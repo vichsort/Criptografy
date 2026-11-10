@@ -26,14 +26,14 @@ final class CryptographyServiceProvider extends ServiceProvider
         $this->app->singleton(Registry::class, function ($app): Registry {
             $registry = new Registry();
 
-            $registry->register('caesar', $app->make(Caesar::class));
-            $registry->register('vigenere', $app->make(Vigenere::class));
-            $registry->register('hill', $app->make(Hill::class));
-            $registry->register('aes-256-gcm', $app->make(Aes256Gcm::class));
-            $registry->register('sha-256', $app->make(Sha256::class));
-            $registry->register('sha-512', $app->make(Sha512::class));
-            $registry->register('base64', $app->make(Base64::class));
-            $registry->register('hex', $app->make(Hex::class));
+            $registry->register($app->make(Caesar::class));
+            $registry->register($app->make(Vigenere::class));
+            $registry->register($app->make(Hill::class));
+            $registry->register($app->make(Aes256Gcm::class));
+            $registry->register($app->make(Sha256::class));
+            $registry->register($app->make(Sha512::class));
+            $registry->register($app->make(Base64::class));
+            $registry->register($app->make(Hex::class));
 
             return $registry;
         });

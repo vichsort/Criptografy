@@ -4,6 +4,7 @@ namespace App\Cryptography;
 
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
+use LogicException;
 
 /**
  * Associa um identificador estável (ex.: "caesar", "vigenere") à sua
@@ -19,8 +20,21 @@ final class Registry
     /** @var array<string, DescribesAlgorithm> */
     private array $algorithms = [];
 
-    public function register(string $id, DescribesAlgorithm $algorithm): void
+    /**
+     * O id usado no registro é o próprio describe()->id, para que o
+     * identificador exista em um único lugar e nunca divirja do que
+     * GET /api/algorithms anuncia.
+     *
+     * @throws LogicException quando outro algoritmo já usa o mesmo id.
+     */
+    public function register(DescribesAlgorithm $algorithm): void
     {
+        $id = $algorithm->describe()->id;
+
+        if (isset($this->algorithms[$id])) {
+            throw new LogicException(sprintf('Algorithm id "%s" is already registered.', $id));
+        }
+
         $this->algorithms[$id] = $algorithm;
     }
 

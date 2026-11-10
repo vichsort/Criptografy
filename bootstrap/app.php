@@ -30,8 +30,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // Limite por IP definido em AppServiceProvider (RateLimiter "api").
         $middleware->throttleApi();
 
+        // Espaços em "input" e nas opções (ex.: chaves) são dados, não ruído.
         $middleware->trimStrings(except: [
             'input',
+            'options.*',
         ]);
 
         $middleware->convertEmptyStringsToNull(except: [

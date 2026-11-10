@@ -83,9 +83,9 @@ Para adicionar um algoritmo sem alterar o código existente (Open/Closed):
 
 1. **Criar a classe do algoritmo**: Crie um diretório em `app/Cryptography/{NomeDoAlgoritmo}/`. A classe deve implementar `DescribesAlgorithm` e um dos contratos de operação (`EncryptionAlgorithm`, `HashAlgorithm` ou `EncodingAlgorithm`).
 2. **Definir exceções dedicadas**: Se o algoritmo exigir validações específicas de opções ou chaves, crie uma classe de exceção que herde de `App\Cryptography\Contracts\InvalidAlgorithmOptionsException`.
-3. **Registrar no Service Provider**: Adicione uma única linha em `app/Providers/CryptographyServiceProvider.php`:
+3. **Registrar no Service Provider**: Adicione uma única linha em `app/Providers/CryptographyServiceProvider.php`. O identificador é lido de `describe()->id` (ids duplicados são recusados):
    ```php
-   $registry->register('identificador-unico', $app->make(NovoAlgoritmo::class));
+   $registry->register($app->make(NovoAlgoritmo::class));
    ```
 4. **Adicionar testes unitários**: Crie a suíte em `tests/Unit/Cryptography/{NomeDoAlgoritmo}/` validando reversibilidade, entradas inválidas, strings vazias e metadados.
 

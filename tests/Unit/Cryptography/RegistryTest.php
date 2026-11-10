@@ -22,7 +22,7 @@ final class RegistryTest extends TestCase
         $registry = new Registry();
         $algorithm = $this->fakeAlgorithm('caesar');
 
-        $registry->register('caesar', $algorithm);
+        $registry->register($algorithm);
 
         $this->assertTrue($registry->has('caesar'));
         $this->assertSame($algorithm, $registry->get('caesar'));
@@ -40,8 +40,8 @@ final class RegistryTest extends TestCase
     public function test_all_aggregates_metadata_of_every_registered_algorithm(): void
     {
         $registry = new Registry();
-        $registry->register('caesar', $this->fakeAlgorithm('caesar'));
-        $registry->register('vigenere', $this->fakeAlgorithm('vigenere'));
+        $registry->register($this->fakeAlgorithm('caesar'));
+        $registry->register($this->fakeAlgorithm('vigenere'));
 
         $ids = array_map(
             fn (AlgorithmMetadata $metadata) => $metadata->id,
@@ -60,7 +60,29 @@ final class RegistryTest extends TestCase
         $this->expectException(\TypeError::class);
 
         /** @phpstan-ignore-next-line */
-        $registry->register('broken', new class {});
+        $registry->register(new class {});
+    }
+
+    public function test_algorithm_is_registered_under_the_id_it_describes(): void
+    {
+        // O id vem só de describe(): não existe um segundo lugar onde ele
+        // possa divergir do que GET /api/algorithms anuncia.
+        $registry = new Registry();
+        $registry->register($this->fakeAlgorithm('hill'));
+
+        $this->assertTrue($registry->has('hill'));
+        $this->assertSame('hill', $registry->get('hill')->describe()->id);
+    }
+
+    public function test_registering_two_algorithms_with_the_same_id_throws(): void
+    {
+        $registry = new Registry();
+        $registry->register($this->fakeAlgorithm('caesar'));
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('caesar');
+
+        $registry->register($this->fakeAlgorithm('caesar'));
     }
 
     private function fakeAlgorithm(string $id): DescribesAlgorithm
