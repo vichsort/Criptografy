@@ -15,14 +15,18 @@ namespace App\Cryptography\Support;
  *    PHP_INT_MAX. Here strings of any length are reduced digit by digit,
  *    without ever materializing the whole number.
  *
- * Accepts: int; float holding an exact integer value (|v| <= 2^53, e.g. JSON
+ * Accepts: int; float holding an exact integer value (|v| <= 2^53 - 1, e.g. JSON
  * "3.0"); string matching /^-?\d+$/. Anything else (including "--3", "+3",
  * " 3", or "3.0" as a string) returns null.
  */
 final class IntegerResidue
 {
-    /** Largest integer a 64-bit IEEE 754 float represents without loss. */
-    private const MAX_EXACT_FLOAT = 2 ** 53;
+    /**
+     * Largest float that can only come from one integer (JavaScript's
+     * Number.MAX_SAFE_INTEGER). From 2^53 on, floats skip integers, so
+     * 2^53 + 1 written in JSON is decoded as 2^53.
+     */
+    private const MAX_SAFE_FLOAT = 2 ** 53 - 1;
 
     public static function of(mixed $value, int $modulus): ?int
     {
@@ -31,7 +35,7 @@ final class IntegerResidue
         }
 
         if (is_float($value)) {
-            if (! is_finite($value) || floor($value) !== $value || abs($value) > self::MAX_EXACT_FLOAT) {
+            if (! is_finite($value) || floor($value) !== $value || abs($value) > self::MAX_SAFE_FLOAT) {
                 return null;
             }
 

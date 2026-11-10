@@ -173,9 +173,17 @@ vendor/bin/pint --test       # code style
 vendor/bin/phpstan analyse   # static analysis (Larastan, level max)
 composer audit               # known vulnerabilities in dependencies
 vendor/bin/phpunit           # Unit, Feature and Contract suites
+
+# These two need a coverage driver (pcov or Xdebug):
+vendor/bin/phpunit --coverage-clover coverage.xml && php scripts/check-coverage.php coverage.xml 100
+vendor/bin/infection --threads=max   # mutation testing
 ```
 
-`phpstan-baseline.neon` holds the known typing debt of the test suite (production code has none). New errors fail the build; the baseline should only shrink.
+Line coverage must stay at **100%** (`scripts/check-coverage.php`). Code that no input can reach, such as a guard against an OpenSSL environment failure, is marked with `@codeCoverageIgnore` and a comment explaining why.
+
+**Mutation testing** (Infection) changes the code in small ways, such as `<` into `<=` or a removed `throw`, and checks that some test fails for each change. The run fails when the MSI (share of mutants caught) drops below 95% (`infection.json5`). The few mutants that escape today are equivalent: they change the code without changing its behavior.
+
+PHPStan runs at level max over the whole codebase, tests included, with no baseline: every error fails the build. `phpstan/phpstan-phpunit` lets assertions such as `assertIsString()` narrow types, which is how the tests handle JSON values (decoded as `mixed`).
 
 ---
 
@@ -183,9 +191,10 @@ vendor/bin/phpunit           # Unit, Feature and Contract suites
 
 * **`master` is protected**: it only changes through pull requests, and only when every CI check is green.
 * **Work happens on `develop`** (or on feature branches created from it). When it is ready, open a pull request from `develop` to `master`.
-* **CI** (`.github/workflows/ci.yml`) runs on every push and pull request to `master` and `develop`, with three jobs:
+* **CI** (`.github/workflows/ci.yml`) runs on every push and pull request to `master` and `develop`, with four jobs:
   * `quality`: Pint, PHPStan and `composer audit`;
-  * `tests`: the PHPUnit suites with a coverage report (pcov), uploaded as an artifact;
+  * `tests`: the PHPUnit suites with a coverage report (pcov), uploaded as an artifact, and the 100% line coverage minimum;
+  * `mutation`: Infection, with the 95% minimum MSI;
   * `docker`: builds the production image, starts it with an injected `PORT` and smoke-tests the running API.
 
 ---

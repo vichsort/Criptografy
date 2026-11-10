@@ -70,7 +70,7 @@ final class VigenereTest extends TestCase
 
     public function test_empty_key_throws(): void
     {
-        $this->expectException(VigenereException::class);
+        $this->expectExceptionObject(VigenereException::emptyKey());
 
         $this->vigenere->encrypt('abc', ['key' => '']);
     }
@@ -80,6 +80,15 @@ final class VigenereTest extends TestCase
         $this->expectException(VigenereException::class);
 
         $this->vigenere->encrypt('abc', ['key' => 'LE MON123']);
+    }
+
+    public function test_non_string_key_throws(): void
+    {
+        // 65 must not be read as the letter "A" (the ASCII code ctype_alpha()
+        // accepts for ints) nor as the key "65".
+        $this->expectExceptionObject(VigenereException::invalidKey(65));
+
+        $this->vigenere->encrypt('abc', ['key' => 65]);
     }
 
     public function test_empty_input_returns_empty_string(): void

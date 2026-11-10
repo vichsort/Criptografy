@@ -3,6 +3,7 @@
 namespace Tests\Feature\Infrastructure;
 
 use Illuminate\Testing\TestResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
 final class RateLimitTest extends TestCase
@@ -32,6 +33,9 @@ final class RateLimitTest extends TestCase
         $this->hash(forwardedFor: '203.0.113.1')->assertStatus(429);
     }
 
+    /**
+     * @return TestResponse<Response>
+     */
     private function hash(?string $forwardedFor = null): TestResponse
     {
         $headers = $forwardedFor === null ? [] : ['X-Forwarded-For' => $forwardedFor];

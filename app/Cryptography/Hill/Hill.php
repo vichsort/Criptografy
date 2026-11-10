@@ -44,7 +44,7 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
     {
         $matrix = $this->resolveKeyMatrix($options);
         $blockSize = count($matrix);
-        $inverse = $this->invertMatrixMod($matrix, self::ALPHABET_SIZE);
+        $inverse = $this->invertMatrixMod($matrix);
 
         $letters = $this->extractLetters($input);
 
@@ -91,12 +91,13 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
     /**
      * @param  list<string>  $letters
      * @param  list<list<int>>  $matrix
+     * @param  positive-int  $blockSize
      */
     private function transformBlocks(array $letters, array $matrix, int $blockSize): string
     {
         $result = '';
 
-        foreach (array_chunk($letters, max(1, $blockSize)) as $block) {
+        foreach (array_chunk($letters, $blockSize) as $block) {
             $vector = array_map(
                 static fn (string $letter): int => ord($letter) - ord('A'),
                 $block,
@@ -118,7 +119,7 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
 
     /**
      * @param  array<string, mixed>  $options
-     * @return list<list<int>>
+     * @return non-empty-list<list<int>>
      *
      * @throws HillException
      */
@@ -164,13 +165,24 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
         // Hill requires the matrix to be invertible mod 26; validating here
         // makes both encrypt() and decrypt() fail early with a clear message
         // instead of producing a wrong result.
-        $determinant = $this->mod($this->determinant($matrix), self::ALPHABET_SIZE);
-
-        if ($this->modInverse($determinant, self::ALPHABET_SIZE) === null) {
-            throw HillException::keyNotInvertible($determinant, self::ALPHABET_SIZE);
-        }
+        $this->determinantInverse($matrix);
 
         return $matrix;
+    }
+
+    /**
+     * The inverse of det(K) mod 26, which exists only when gcd(det, 26) = 1.
+     *
+     * @param  list<list<int>>  $matrix
+     *
+     * @throws HillException when the matrix is not invertible mod 26.
+     */
+    private function determinantInverse(array $matrix): int
+    {
+        $determinant = $this->mod($this->determinant($matrix), self::ALPHABET_SIZE);
+
+        return $this->modInverse($determinant, self::ALPHABET_SIZE)
+            ?? throw HillException::keyNotInvertible($determinant, self::ALPHABET_SIZE);
     }
 
     // ------------------------------------------------------------------
@@ -181,14 +193,9 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
      * @param  list<list<int>>  $matrix
      * @return list<list<int>>
      */
-    private function invertMatrixMod(array $matrix, int $modulus): array
+    private function invertMatrixMod(array $matrix): array
     {
-        $determinant = $this->mod($this->determinant($matrix), $modulus);
-        $determinantInverse = $this->modInverse($determinant, $modulus);
-
-        if ($determinantInverse === null) {
-            throw HillException::keyNotInvertible($determinant, $modulus);
-        }
+        $determinantInverse = $this->determinantInverse($matrix);
 
         $adjugate = $this->transpose($this->cofactorMatrix($matrix));
         $size = count($matrix);
@@ -199,7 +206,7 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
             $row = [];
 
             for ($j = 0; $j < $size; $j++) {
-                $row[] = $this->mod($determinantInverse * $adjugate[$i][$j], $modulus);
+                $row[] = $this->mod($determinantInverse * $adjugate[$i][$j], self::ALPHABET_SIZE);
             }
 
             $inverse[] = $row;
@@ -243,10 +250,6 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
 
         if ($size === 1) {
             return $matrix[0][0];
-        }
-
-        if ($size === 2) {
-            return $matrix[0][0] * $matrix[1][1] - $matrix[0][1] * $matrix[1][0];
         }
 
         $determinant = 0;

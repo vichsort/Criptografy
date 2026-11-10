@@ -114,15 +114,9 @@ final class HashEncodeDecodeTest extends TestCase
 
     public function test_all_eight_algorithms_are_listed(): void
     {
-        $response = $this->getJson('/api/algorithms');
-
-        $response->assertOk();
-
-        $ids = collect($response->json('data'))->pluck('id')->all();
-
         $this->assertEqualsCanonicalizing(
             ['caesar', 'vigenere', 'hill', 'aes-256-gcm', 'sha-256', 'sha-512', 'base64', 'hex'],
-            $ids,
+            array_column($this->listedAlgorithms(), 'id'),
         );
     }
 

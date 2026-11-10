@@ -55,11 +55,33 @@ jobs:
       - name: Unit, Feature and Contract tests (with coverage)
         run: vendor/bin/phpunit --colors=always --coverage-text --coverage-clover coverage.xml
 
+      - name: Minimum line coverage
+        run: php scripts/check-coverage.php coverage.xml 100
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: coverage.xml
+
+  mutation:
+    name: mutation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: pcov
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      # Changes the code in small ways (mutants) and checks that some test
+      # fails for each one; the minimum MSI is set in infection.json5.
+      - name: Mutation testing (Infection)
+        run: vendor/bin/infection --threads=max --no-progress --show-mutations
 
   docker:
     name: docker

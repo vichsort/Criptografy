@@ -5,6 +5,7 @@ namespace Tests\Feature\Cryptography;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
 /**
@@ -68,6 +69,7 @@ final class ApiErrorResponseTest extends TestCase
 
     /**
      * @param  array<string, mixed>|null  $body
+     * @return TestResponse<Response>
      */
     private function fetchLike(string $method, string $uri, ?array $body = null): TestResponse
     {

@@ -89,12 +89,11 @@ final class ExposedLanguageTest extends TestCase
     {
         // English descriptions need no accents; a non-ASCII character here
         // almost always means untranslated text was left behind.
-        $descriptions = collect($this->getJson('/api/algorithms')->json('data'))
-            ->pluck('description', 'id');
+        foreach ($this->listedAlgorithms() as $algorithm) {
+            ['id' => $id, 'description' => $description] = $algorithm;
+            $this->assertIsString($id);
+            $this->assertIsString($description);
 
-        $this->assertNotEmpty($descriptions);
-
-        foreach ($descriptions as $id => $description) {
             $this->assertTrue(
                 mb_check_encoding($description, 'ASCII'),
                 "Description of \"{$id}\" contains non-ASCII text: {$description}",
@@ -104,17 +103,24 @@ final class ExposedLanguageTest extends TestCase
 
     public function test_option_titles_and_descriptions_are_in_english(): void
     {
-        $texts = collect($this->getJson('/api/algorithms')->json('data'))
-            ->flatMap(fn (array $algorithm) => collect($algorithm['options']['properties'] ?? [])
-                ->flatMap(fn (array $option, string $name) => [
-                    "{$algorithm['id']}.{$name}.title" => $option['title'] ?? '',
-                    "{$algorithm['id']}.{$name}.description" => $option['description'] ?? '',
-                ]));
+        $checked = 0;
 
-        $this->assertNotEmpty($texts);
+        foreach ($this->listedAlgorithms() as $algorithm) {
+            $id = $algorithm['id'];
+            $properties = data_get($algorithm, 'options.properties');
+            $this->assertIsString($id);
+            $this->assertIsArray($properties);
 
-        foreach ($texts as $path => $text) {
-            $this->assertTrue(mb_check_encoding($text, 'ASCII'), "{$path} contains non-ASCII text: {$text}");
+            foreach ($properties as $name => $option) {
+                foreach (['title', 'description'] as $field) {
+                    $text = data_get($option, $field);
+                    $this->assertIsString($text, "{$id}.{$name}.{$field} is missing");
+                    $this->assertTrue(mb_check_encoding($text, 'ASCII'), "{$id}.{$name}.{$field} contains non-ASCII text: {$text}");
+                    $checked++;
+                }
+            }
         }
+
+        $this->assertGreaterThan(0, $checked);
     }
 }

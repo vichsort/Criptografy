@@ -1,0 +1,20 @@
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": ["app"]
+    },
+    "logs": {
+        "text": "build/infection/infection.log",
+        "summary": "build/infection/summary.log"
+    },
+    "tmpDir": "build/infection/tmp",
+    "mutators": {
+        "@default": true
+    },
+    // The mutants that still escape are equivalent: they change the code but
+    // not its behavior (e.g. "ord($c) + 65" is congruent to "ord($c) - 65"
+    // mod 26, or a string cast PHP would apply anyway). The ~2 points of
+    // slack absorb those; a mutant a test should catch fails the build.
+    "minMsi": 95,
+    "minCoveredMsi": 95
+}
