@@ -88,6 +88,7 @@ Para adicionar um algoritmo sem alterar o código existente (Open/Closed):
    $registry->register($app->make(NovoAlgoritmo::class));
    ```
 4. **Adicionar testes unitários**: Crie a suíte em `tests/Unit/Cryptography/{NomeDoAlgoritmo}/` validando reversibilidade, entradas inválidas, strings vazias e metadados.
+5. **Testes de contrato**: `tests/Contract/AlgorithmContractTest.php` verifica automaticamente todo algoritmo registrado (coerência dos metadados com o contrato implementado, reversibilidade, determinismo do hash e erros de opções). Algoritmos de criptografia precisam apenas de uma entrada em `ENCRYPTION_FIXTURES` com opções válidas; sem ela, a suíte falha.
 
 ---
 
