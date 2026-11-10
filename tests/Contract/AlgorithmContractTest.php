@@ -54,6 +54,8 @@ final class AlgorithmContractTest extends TestCase
                 [],
                 ['key' => 'abc'],
                 ['key' => [[1]]],
+                ['key' => [[1, 2]]],
+                ['key' => [1, 2]],
                 ['key' => [[1, 2], [3]]],
                 ['key' => [[1.5, 2], [3, 4]]],
                 ['key' => [[1, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1]]],
@@ -61,7 +63,8 @@ final class AlgorithmContractTest extends TestCase
             'samples' => ['', 'ATTACKATDAWN'],
         ],
         'aes-256-gcm' => [
-            'options' => ['key' => 'secret'],
+            // The shortest key accepted, checking the schema's minLength.
+            'options' => ['key' => 'k'],
             'invalid' => [[], ['key' => ''], ['key' => 123]],
         ],
     ];

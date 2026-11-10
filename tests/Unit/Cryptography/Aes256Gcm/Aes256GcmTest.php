@@ -71,6 +71,15 @@ final class Aes256GcmTest extends TestCase
         $this->aes->decrypt('not-even-close-to-base64!!', ['key' => 'key']);
     }
 
+    public function test_decrypting_input_shorter_than_nonce_and_tag_throws_a_format_error(): void
+    {
+        // Valid base64, but 27 bytes cannot hold a 12-byte nonce plus a
+        // 16-byte tag: a format error, not an authentication failure.
+        $this->expectExceptionObject(Aes256GcmException::invalidCiphertextFormat());
+
+        $this->aes->decrypt(base64_encode(str_repeat("\0", 27)), ['key' => 'key']);
+    }
+
     public function test_handles_empty_input_string(): void
     {
         $options = ['key' => 'my-key'];

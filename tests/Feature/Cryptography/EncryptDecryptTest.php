@@ -59,6 +59,17 @@ final class EncryptDecryptTest extends TestCase
         $response->assertStatus(422);
     }
 
+    public function test_options_that_are_not_an_object_return_a_validation_error(): void
+    {
+        $this->postJson('/api/encrypt', [
+            'algorithm' => 'caesar',
+            'input' => 'hello',
+            'options' => '3',
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['options' => 'The options field must be an array.']);
+    }
+
     public function test_encrypts_using_hill(): void
     {
         $response = $this->postJson('/api/encrypt', [

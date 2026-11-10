@@ -32,6 +32,34 @@ final class HillTest extends TestCase
         $this->assertSame('POH', $this->hill->encrypt('ACT', $key));
     }
 
+    public function test_decrypts_the_classic_3x3_wikipedia_example(): void
+    {
+        // Unlike encrypt(), decrypt() depends on det(K) and the cofactors,
+        // so it checks the general (Laplace) determinant and the inverse.
+        $key = ['key' => [[6, 24, 1], [13, 16, 10], [20, 17, 15]]];
+
+        $this->assertSame('ACT', $this->hill->decrypt('POH', $key));
+    }
+
+    public function test_round_trips_with_the_largest_allowed_6x6_key(): void
+    {
+        // det = 15 (mod 26), coprime with 26.
+        $key = ['key' => [
+            [9, 7, 25, 5, 22, 24],
+            [7, 2, 18, 9, 16, 15],
+            [10, 23, 14, 9, 19, 2],
+            [3, 16, 13, 5, 24, 10],
+            [4, 15, 13, 1, 21, 2],
+            [24, 17, 18, 25, 10, 10],
+        ]];
+        $plain = 'ATTACKATDAWN';
+
+        $cipher = $this->hill->encrypt($plain, $key);
+
+        $this->assertNotSame($plain, $cipher);
+        $this->assertSame($plain, $this->hill->decrypt($cipher, $key));
+    }
+
     public function test_decrypt_reverses_encrypt_when_length_is_a_multiple_of_block_size(): void
     {
         $plain = 'ATTACKATDAWN'; // 12 letters, a multiple of 2: no padding
@@ -71,6 +99,20 @@ final class HillTest extends TestCase
         $this->expectException(HillException::class);
 
         $this->hill->encrypt('HELP', ['key' => [[1, 2, 3], [4, 5, 6]]]);
+    }
+
+    public function test_key_with_named_rows_throws(): void
+    {
+        $this->expectExceptionObject(HillException::invalidKeyFormat());
+
+        $this->hill->encrypt('HELP', ['key' => ['first' => [3, 3], 'second' => [2, 5]]]);
+    }
+
+    public function test_empty_key_throws(): void
+    {
+        $this->expectExceptionObject(HillException::invalidKeyFormat());
+
+        $this->hill->encrypt('HELP', ['key' => []]);
     }
 
     public function test_key_smaller_than_2x2_throws(): void

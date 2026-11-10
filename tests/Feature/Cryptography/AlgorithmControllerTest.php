@@ -16,6 +16,25 @@ final class AlgorithmControllerTest extends TestCase
         $response->assertJsonPath('data.0.supportsHashing', false);
     }
 
+    public function test_exposes_every_metadata_field(): void
+    {
+        $caesar = Arr::first($this->listedAlgorithms(), fn (array $algorithm): bool => $algorithm['id'] === 'caesar');
+        $this->assertIsArray($caesar);
+
+        $this->assertSame(
+            ['id', 'name', 'category', 'description', 'supportsEncryption', 'supportsDecryption', 'supportsHashing', 'requiresKey', 'securityLevel', 'options'],
+            array_keys($caesar),
+        );
+        $this->assertSame('Caesar', $caesar['name']);
+        $this->assertSame('encryption', $caesar['category']);
+        $this->assertIsString($caesar['description']);
+        $this->assertTrue($caesar['supportsEncryption']);
+        $this->assertTrue($caesar['supportsDecryption']);
+        $this->assertFalse($caesar['supportsHashing']);
+        $this->assertTrue($caesar['requiresKey']);
+        $this->assertSame('educational', $caesar['securityLevel']);
+    }
+
     public function test_exposes_the_options_of_each_algorithm_as_json_schema(): void
     {
         $caesar = Arr::first($this->listedAlgorithms(), fn (array $algorithm): bool => $algorithm['id'] === 'caesar');
