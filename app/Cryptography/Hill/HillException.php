@@ -8,26 +8,26 @@ final class HillException extends InvalidAlgorithmOptionsException
 {
     public static function missingKey(): self
     {
-        return new self('O parâmetro "key" (matriz) é obrigatório para o algoritmo Hill.');
+        return new self('The "key" option (a matrix) is required for the Hill algorithm.');
     }
 
     public static function invalidKeyFormat(): self
     {
         return new self(
-            'A chave do Hill deve ser uma matriz quadrada (array de arrays) de números inteiros. '.
-            'Exemplo: [[3, 3], [2, 5]].',
+            'The Hill key must be a square matrix (an array of arrays) of integers. '.
+            'Example: [[3, 3], [2, 5]].',
         );
     }
 
     public static function keyTooSmall(): self
     {
-        return new self('A matriz-chave do Hill deve ter pelo menos 2x2.');
+        return new self('The Hill key matrix must be at least 2x2.');
     }
 
     public static function keyTooLarge(int $maxSize): self
     {
         return new self(sprintf(
-            'A matriz-chave do Hill não pode ter mais que %dx%d, por limitação prática de processamento.',
+            'The Hill key matrix cannot be larger than %dx%d, due to practical processing limits.',
             $maxSize,
             $maxSize,
         ));
@@ -36,8 +36,8 @@ final class HillException extends InvalidAlgorithmOptionsException
     public static function keyNotInvertible(int $determinant, int $modulus): self
     {
         return new self(sprintf(
-            'A matriz-chave não é inversível em módulo %d: det(K) = %d e mdc(%d, %d) != 1. '.
-            'Escolha uma matriz cujo determinante seja coprimo com %d.',
+            'The key matrix is not invertible modulo %d: det(K) = %d and gcd(%d, %d) != 1. '.
+            'Choose a matrix whose determinant is coprime with %d.',
             $modulus,
             $determinant,
             $determinant,
@@ -49,7 +49,7 @@ final class HillException extends InvalidAlgorithmOptionsException
     public static function inputLengthNotMultipleOfBlockSize(int $blockSize): self
     {
         return new self(sprintf(
-            'O texto cifrado deve ter um número de letras múltiplo do tamanho do bloco (%d).',
+            'The ciphertext must contain a number of letters that is a multiple of the block size (%d).',
             $blockSize,
         ));
     }

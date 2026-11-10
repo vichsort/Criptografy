@@ -15,8 +15,8 @@ final class NonTextResultException extends RuntimeException
     public static function make(): self
     {
         return new self(
-            'O resultado da operação não é texto UTF-8 válido (contém bytes binários) '.
-            'e não pode ser representado na resposta JSON.',
+            'The operation result is not valid UTF-8 text (it contains binary bytes) '.
+            'and cannot be represented in the JSON response.',
         );
     }
 }

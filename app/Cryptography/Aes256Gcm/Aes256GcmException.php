@@ -8,26 +8,26 @@ final class Aes256GcmException extends InvalidAlgorithmOptionsException
 {
     public static function missingKey(): self
     {
-        return new self('O parâmetro "key" é obrigatório para o algoritmo AES-256-GCM.');
+        return new self('The "key" option is required for the AES-256-GCM algorithm.');
     }
 
     public static function emptyKey(): self
     {
-        return new self('A chave do AES-256-GCM não pode ser vazia.');
+        return new self('The AES-256-GCM key must not be empty.');
     }
 
     public static function invalidCiphertextFormat(): self
     {
         return new self(
-            'O texto cifrado não está em um formato válido (esperado: base64 de nonce+tag+ciphertext).',
+            'The ciphertext is not in a valid format (expected: base64 of nonce + tag + ciphertext).',
         );
     }
 
     public static function decryptionFailed(): self
     {
         return new self(
-            'Falha ao descriptografar: chave incorreta ou dados corrompidos/adulterados '.
-            '(a tag de autenticação do GCM não confere).',
+            'Decryption failed: wrong key or corrupted/tampered data '.
+            '(the GCM authentication tag does not match).',
         );
     }
 }

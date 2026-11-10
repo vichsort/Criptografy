@@ -6,9 +6,9 @@ return [
     'debug' => (bool) env('APP_DEBUG', false),
     'url' => env('APP_URL', 'http://localhost'),
     'timezone' => 'UTC',
-    'locale' => 'pt_BR',
+    'locale' => 'en',
     'fallback_locale' => 'en',
-    'faker_locale' => 'pt_BR',
+    'faker_locale' => 'en_US',
     'cipher' => 'AES-256-CBC',
     'key' => env('APP_KEY'),
     'previous_keys' => array_filter(

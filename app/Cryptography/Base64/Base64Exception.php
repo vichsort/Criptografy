@@ -8,6 +8,6 @@ final class Base64Exception extends InvalidAlgorithmOptionsException
 {
     public static function invalidInput(): self
     {
-        return new self('O texto informado não é uma string Base64 válida.');
+        return new self('The input is not a valid Base64 string.');
     }
 }

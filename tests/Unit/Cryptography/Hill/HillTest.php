@@ -100,7 +100,7 @@ final class HillTest extends TestCase
         // Se '--1' fosse lido como 0, det([[0,3],[1,5]]) = -3 ≡ 23 seria
         // inversível e a cifra seguiria silenciosamente com a chave errada.
         $this->expectException(HillException::class);
-        $this->expectExceptionMessage('números inteiros');
+        $this->expectExceptionMessage('integers');
 
         $this->hill->encrypt('HELP', ['key' => [['--1', 3], [1, 5]]]);
     }

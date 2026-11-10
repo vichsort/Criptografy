@@ -57,7 +57,7 @@ final class Aes256Gcm implements EncryptionAlgorithm, DescribesAlgorithm
         if ($ciphertext === false) {
             // Só ocorreria por um erro de ambiente (ex.: cipher indisponível),
             // já verificamos isso indiretamente ao construir a aplicação.
-            throw new \RuntimeException('Falha inesperada ao criptografar com AES-256-GCM.');
+            throw new \RuntimeException('Unexpected failure while encrypting with AES-256-GCM.');
         }
 
         return base64_encode($nonce.$tag.$ciphertext);
@@ -121,7 +121,7 @@ final class Aes256Gcm implements EncryptionAlgorithm, DescribesAlgorithm
             id: 'aes-256-gcm',
             name: 'AES-256-GCM',
             category: 'encryption',
-            description: 'Criptografia moderna autenticada, via primitiva do OpenSSL (não reimplementada manualmente). Combina confidencialidade (AES-256) e integridade (tag GCM) em uma única operação.',
+            description: 'Modern authenticated encryption using the OpenSSL primitive (not reimplemented by hand). Combines confidentiality (AES-256) and integrity (GCM tag) in a single operation.',
             supportsEncryption: true,
             supportsDecryption: true,
             supportsHashing: false,

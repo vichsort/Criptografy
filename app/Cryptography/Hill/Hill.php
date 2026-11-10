@@ -375,7 +375,7 @@ final class Hill implements EncryptionAlgorithm, DescribesAlgorithm
             id: 'hill',
             name: 'Hill',
             category: 'encryption',
-            description: 'Cifra poligráfica baseada em álgebra linear: cada bloco de letras é transformado por uma matriz-chave em aritmética modular (C = K × P mod 26). Opera apenas sobre letras (A-Z), normalizadas em maiúsculas.',
+            description: 'Polygraphic cipher based on linear algebra: each block of letters is transformed by a key matrix in modular arithmetic (C = K x P mod 26). Operates only on letters (A-Z), normalized to uppercase.',
             supportsEncryption: true,
             supportsDecryption: true,
             supportsHashing: false,

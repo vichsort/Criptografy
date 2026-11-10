@@ -26,7 +26,7 @@ final class Sha256 implements HashAlgorithm, DescribesAlgorithm
             id: 'sha-256',
             name: 'SHA-256',
             category: 'hashing',
-            description: 'Função de hash criptográfico unidirecional (256 bits), via implementação nativa e confiável do PHP.',
+            description: 'One-way cryptographic hash function (256 bits), using the native and trusted PHP implementation.',
             supportsEncryption: false,
             supportsDecryption: false,
             supportsHashing: true,

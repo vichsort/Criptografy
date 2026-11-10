@@ -8,7 +8,7 @@ final class CaesarException extends InvalidAlgorithmOptionsException
 {
     public static function missingShift(): self
     {
-        return new self('O parâmetro "shift" é obrigatório para o algoritmo Caesar.');
+        return new self('The "shift" option is required for the Caesar algorithm.');
     }
 
     public static function invalidShift(mixed $shift): self
@@ -16,7 +16,7 @@ final class CaesarException extends InvalidAlgorithmOptionsException
         $value = is_scalar($shift) ? (string) $shift : get_debug_type($shift);
 
         return new self(sprintf(
-            'O parâmetro "shift" deve ser um número inteiro. Valor recebido: %s',
+            'The "shift" option must be an integer. Received: %s',
             $value,
         ));
     }

@@ -102,7 +102,7 @@ final class Vigenere implements EncryptionAlgorithm, DescribesAlgorithm
             id: 'vigenere',
             name: 'Vigenère',
             category: 'encryption',
-            description: 'Cifra polialfabética: soma modular entre o texto e uma chave repetida (C = (P + K) mod 26).',
+            description: 'Polyalphabetic cipher: modular sum of the text and a repeating key (C = (P + K) mod 26).',
             supportsEncryption: true,
             supportsDecryption: true,
             supportsHashing: false,

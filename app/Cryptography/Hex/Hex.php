@@ -44,7 +44,7 @@ final class Hex implements EncodingAlgorithm, DescribesAlgorithm
             id: 'hex',
             name: 'Hexadecimal',
             category: 'encoding',
-            description: 'Transformação reversível de representação binária para texto em base 16. Não é um mecanismo de segurança.',
+            description: 'Reversible transformation from binary data to base-16 text. It is not a security mechanism.',
             supportsEncryption: false,
             supportsDecryption: false,
             supportsHashing: false,

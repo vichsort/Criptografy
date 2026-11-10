@@ -42,7 +42,7 @@ final class Base64 implements EncodingAlgorithm, DescribesAlgorithm
             id: 'base64',
             name: 'Base64',
             category: 'encoding',
-            description: 'Transformação reversível de representação binária para texto ASCII. Não é um mecanismo de segurança.',
+            description: 'Reversible transformation from binary data to ASCII text. It is not a security mechanism.',
             supportsEncryption: false,
             supportsDecryption: false,
             supportsHashing: false,

@@ -26,7 +26,7 @@ final class Sha512 implements HashAlgorithm, DescribesAlgorithm
             id: 'sha-512',
             name: 'SHA-512',
             category: 'hashing',
-            description: 'Função de hash criptográfico unidirecional (512 bits), via implementação nativa e confiável do PHP.',
+            description: 'One-way cryptographic hash function (512 bits), using the native and trusted PHP implementation.',
             supportsEncryption: false,
             supportsDecryption: false,
             supportsHashing: true,

@@ -82,7 +82,7 @@ final class Caesar implements EncryptionAlgorithm, DescribesAlgorithm
             id: 'caesar',
             name: 'Caesar',
             category: 'encryption',
-            description: 'Cifra de substituição por deslocamento fixo do alfabeto, baseada em aritmética modular (C = (P + shift) mod 26).',
+            description: 'Substitution cipher that shifts the alphabet by a fixed amount, based on modular arithmetic (C = (P + shift) mod 26).',
             supportsEncryption: true,
             supportsDecryption: true,
             supportsHashing: false,
