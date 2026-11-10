@@ -91,12 +91,13 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
     /**
      * @param  list<string>  $letters
      * @param  list<list<int>>  $matrix
+     * @param  positive-int  $blockSize
      */
     private function transformBlocks(array $letters, array $matrix, int $blockSize): string
     {
         $result = '';
 
-        foreach (array_chunk($letters, max(1, $blockSize)) as $block) {
+        foreach (array_chunk($letters, $blockSize) as $block) {
             $vector = array_map(
                 static fn (string $letter): int => ord($letter) - ord('A'),
                 $block,
@@ -118,7 +119,7 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
 
     /**
      * @param  array<string, mixed>  $options
-     * @return list<list<int>>
+     * @return non-empty-list<list<int>>
      *
      * @throws HillException
      */
@@ -249,10 +250,6 @@ final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
 
         if ($size === 1) {
             return $matrix[0][0];
-        }
-
-        if ($size === 2) {
-            return $matrix[0][0] * $matrix[1][1] - $matrix[0][1] * $matrix[1][0];
         }
 
         $determinant = 0;

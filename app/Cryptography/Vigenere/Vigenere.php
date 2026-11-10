@@ -23,12 +23,12 @@ final class Vigenere implements DescribesAlgorithm, EncryptionAlgorithm
 
     public function encrypt(string $input, array $options = []): string
     {
-        return $this->apply($input, $this->resolveKey($options), direction: 1);
+        return $this->apply($input, $this->resolveKey($options), decrypt: false);
     }
 
     public function decrypt(string $input, array $options = []): string
     {
-        return $this->apply($input, $this->resolveKey($options), direction: -1);
+        return $this->apply($input, $this->resolveKey($options), decrypt: true);
     }
 
     /**
@@ -59,10 +59,7 @@ final class Vigenere implements DescribesAlgorithm, EncryptionAlgorithm
         return strtoupper($key);
     }
 
-    /**
-     * @param  int  $direction  1 to encrypt, -1 to decrypt
-     */
-    private function apply(string $input, string $key, int $direction): string
+    private function apply(string $input, string $key, bool $decrypt): string
     {
         $keyLength = strlen($key);
         $keyIndex = 0;
@@ -76,7 +73,9 @@ final class Vigenere implements DescribesAlgorithm, EncryptionAlgorithm
             }
 
             $keyShift = ord($key[$keyIndex % $keyLength]) - ord('A');
-            $shift = $direction * $keyShift;
+            // Shifting back by k is shifting forward by 26 - k, which keeps
+            // the shift non-negative for PHP's % operator.
+            $shift = $decrypt ? self::ALPHABET_SIZE - $keyShift : $keyShift;
 
             $result .= match (true) {
                 ctype_upper($char) => $this->shiftChar($char, 'A', $shift),
@@ -92,7 +91,6 @@ final class Vigenere implements DescribesAlgorithm, EncryptionAlgorithm
     private function shiftChar(string $char, string $alphabetStart, int $shift): string
     {
         $base = ord($alphabetStart);
-        $shift = (($shift % self::ALPHABET_SIZE) + self::ALPHABET_SIZE) % self::ALPHABET_SIZE;
 
         return chr((ord($char) - $base + $shift) % self::ALPHABET_SIZE + $base);
     }
@@ -115,7 +113,7 @@ final class Vigenere implements DescribesAlgorithm, EncryptionAlgorithm
                         'type' => 'string',
                         'title' => 'Key',
                         'description' => 'Keyword made only of letters (A-Z, case-insensitive), repeated along the text.',
-                        'minLength' => 1,
+                        // "+" already rules out the empty string.
                         'pattern' => '^[A-Za-z]+$',
                     ],
                 ],

@@ -29,13 +29,14 @@ final class Caesar implements DescribesAlgorithm, EncryptionAlgorithm
 
     public function decrypt(string $input, array $options = []): string
     {
-        return $this->shiftText($input, -$this->resolveShift($options));
+        // Shifting back by k is shifting forward by 26 - k.
+        return $this->shiftText($input, self::ALPHABET_SIZE - $this->resolveShift($options));
     }
 
     /**
-     * Returns the shift already reduced to [0, 26). Only its value mod 26
-     * matters to the cipher, and reducing it here prevents an overflow when
-     * decrypt() negates the shift.
+     * Returns the shift already reduced to [0, 26): only its value mod 26
+     * matters to the cipher, and a small non-negative shift keeps the
+     * arithmetic in shiftChar() within [0, 52).
      *
      * @param  array<string, mixed>  $options
      *
@@ -53,11 +54,6 @@ final class Caesar implements DescribesAlgorithm, EncryptionAlgorithm
 
     private function shiftText(string $input, int $shift): string
     {
-        // Normalize to [0, 26) before applying, so negative shifts (decrypt)
-        // and shifts larger than 26 work correctly with PHP's modular
-        // arithmetic.
-        $shift = (($shift % self::ALPHABET_SIZE) + self::ALPHABET_SIZE) % self::ALPHABET_SIZE;
-
         $result = '';
 
         foreach (str_split($input) as $char) {

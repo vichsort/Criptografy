@@ -19,7 +19,7 @@ final class CryptographyOperationRequest extends FormRequest
         return [
             'algorithm' => ['required', 'string'],
             'input' => ['present', 'string'],
-            'options' => ['sometimes', 'array'],
+            'options' => ['array'],
         ];
     }
 
