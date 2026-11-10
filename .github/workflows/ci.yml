@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
+
+permissions:
+  contents: read
+
+# A newer push to the same branch cancels the run that is still in progress.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Code style (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Static analysis (PHPStan / Larastan)
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
+      - name: Security audit of dependencies
+        run: composer audit
+
+  tests:
+    name: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: pcov
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Unit, Feature and Contract tests (with coverage)
+        run: vendor/bin/phpunit --colors=always --coverage-text --coverage-clover coverage.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
+
+  docker:
+    name: docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build production image
+        run: docker build -t criptografy-api:ci .
+
+      - name: Start container (as Render does, with an injected PORT)
+        run: docker run -d --name api -e PORT=10000 -p 8080:10000 criptografy-api:ci
+
+      - name: Smoke test
+        run: |
+          for attempt in $(seq 1 30); do
+            curl -fsS http://localhost:8080/up > /dev/null && break
+            sleep 1
+          done
+
+          # Captured first: with pipefail, "curl | grep -q" can fail when grep
+          # closes the pipe early and curl gets SIGPIPE.
+          algorithms=$(curl -fsS http://localhost:8080/api/algorithms)
+          grep -q '"id":"caesar"' <<< "$algorithms"
+
+          result=$(curl -fsS -X POST http://localhost:8080/api/encrypt \
+            -H 'Content-Type: application/json' \
+            -d '{"algorithm":"vigenere","input":"ATTACKATDAWN","options":{"key":"LEMON"}}')
+          test "$result" = '{"result":"LXFOPVEFRNHR"}'
+
+          status=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8080/api/encrypt \
+            -H 'Content-Type: application/json' -d '{"algorithm":"caesar"}')
+          test "$status" = '422'
+
+      - name: Container logs
+        if: failure()
+        run: docker logs api

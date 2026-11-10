@@ -1,5 +1,7 @@
 # Criptografy API
 
+[![CI](https://github.com/vichsort/Criptografy/actions/workflows/ci.yml/badge.svg)](https://github.com/vichsort/Criptografy/actions/workflows/ci.yml)
+
 REST API for experimenting with and learning cryptographic concepts: classical ciphers, modern authenticated encryption, hash functions and encodings.
 
 The project is built with **Laravel 13** as a pure API backend (stateless, no persistence, CORS enabled), ready to be consumed by external clients (e.g. Next.js).
@@ -163,6 +165,28 @@ php artisan serve
 ```bash
 php artisan test
 ```
+
+### Quality checks
+The same checks CI runs:
+```bash
+vendor/bin/pint --test       # code style
+vendor/bin/phpstan analyse   # static analysis (Larastan, level max)
+composer audit               # known vulnerabilities in dependencies
+vendor/bin/phpunit           # Unit, Feature and Contract suites
+```
+
+`phpstan-baseline.neon` holds the known typing debt of the test suite (production code has none). New errors fail the build; the baseline should only shrink.
+
+---
+
+## Development Workflow
+
+* **`master` is protected**: it only changes through pull requests, and only when every CI check is green.
+* **Work happens on `develop`** (or on feature branches created from it). When it is ready, open a pull request from `develop` to `master`.
+* **CI** (`.github/workflows/ci.yml`) runs on every push and pull request to `master` and `develop`, with three jobs:
+  * `quality`: Pint, PHPStan and `composer audit`;
+  * `tests`: the PHPUnit suites with a coverage report (pcov), uploaded as an artifact;
+  * `docker`: builds the production image, starts it with an injected `PORT` and smoke-tests the running API.
 
 ---
 
