@@ -5,6 +5,7 @@ namespace App\Cryptography\Aes256Gcm;
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
 use App\Cryptography\Contracts\EncryptionAlgorithm;
+use App\Cryptography\Contracts\OptionsSchema;
 
 /**
  * AES-256-GCM: criptografia moderna autenticada.
@@ -127,6 +128,17 @@ final class Aes256Gcm implements EncryptionAlgorithm, DescribesAlgorithm
             supportsHashing: false,
             requiresKey: true,
             securityLevel: 'modern',
+            options: OptionsSchema::object(
+                properties: [
+                    'key' => [
+                        'type' => 'string',
+                        'title' => 'Key',
+                        'description' => 'Any non-empty string. It is turned into a 256-bit key with SHA-256, a deliberate simplification: real systems should use a proper KDF.',
+                        'minLength' => 1,
+                    ],
+                ],
+                required: ['key'],
+            ),
         );
     }
 }

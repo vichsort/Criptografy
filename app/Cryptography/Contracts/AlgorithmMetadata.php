@@ -21,6 +21,12 @@ final readonly class AlgorithmMetadata implements JsonSerializable
         public bool $supportsHashing,
         public bool $requiresKey,
         public string $securityLevel,
+        /**
+         * JSON Schema das opções aceitas (ver OptionsSchema).
+         *
+         * @var array<string, mixed>
+         */
+        public array $options,
     ) {}
 
     /**
@@ -34,6 +40,7 @@ final readonly class AlgorithmMetadata implements JsonSerializable
      *     supportsHashing: bool,
      *     requiresKey: bool,
      *     securityLevel: string,
+     *     options: array<string, mixed>,
      * }
      */
     public function jsonSerialize(): array
@@ -48,6 +55,7 @@ final readonly class AlgorithmMetadata implements JsonSerializable
             'supportsHashing' => $this->supportsHashing,
             'requiresKey' => $this->requiresKey,
             'securityLevel' => $this->securityLevel,
+            'options' => $this->options,
         ];
     }
 }

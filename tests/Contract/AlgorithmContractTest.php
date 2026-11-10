@@ -8,6 +8,7 @@ use App\Cryptography\Contracts\EncryptionAlgorithm;
 use App\Cryptography\Contracts\HashAlgorithm;
 use App\Cryptography\Contracts\InvalidAlgorithmOptionsException;
 use App\Cryptography\Registry;
+use Opis\JsonSchema\Validator;
 use Tests\TestCase;
 
 /**
@@ -28,19 +29,41 @@ final class AlgorithmContractTest extends TestCase
     ];
 
     /**
-     * Opções válidas e, quando o algoritmo não preserva qualquer texto,
-     * as amostras do seu espaço de mensagens.
+     * - options: opções válidas;
+     * - invalid: opções que o algoritmo recusa E que o schema consegue
+     *   expressar (ex.: "matriz não inversível" não entra — JSON Schema não
+     *   calcula determinante);
+     * - samples: quando o algoritmo não preserva qualquer texto, amostras do
+     *   seu espaço de mensagens. Hill: só letras maiúsculas, em quantidade
+     *   múltipla do tamanho do bloco (12 letras servem para blocos de 2 a 6).
      *
-     * Hill: só letras maiúsculas, em quantidade múltipla do tamanho do bloco
-     * (12 letras servem para blocos de 2, 3, 4 e 6).
-     *
-     * @var array<string, array{options: array<string, mixed>, samples?: list<string>}>
+     * @var array<string, array{options: array<string, mixed>, invalid: list<array<string, mixed>>, samples?: list<string>}>
      */
     private const ENCRYPTION_FIXTURES = [
-        'caesar' => ['options' => ['shift' => 7]],
-        'vigenere' => ['options' => ['key' => 'LEMON']],
-        'hill' => ['options' => ['key' => [[3, 3], [2, 5]]], 'samples' => ['', 'ATTACKATDAWN']],
-        'aes-256-gcm' => ['options' => ['key' => 'secret']],
+        'caesar' => [
+            'options' => ['shift' => 7],
+            'invalid' => [[], ['shift' => 'abc'], ['shift' => '--3'], ['shift' => 3.5]],
+        ],
+        'vigenere' => [
+            'options' => ['key' => 'LEMON'],
+            'invalid' => [[], ['key' => ''], ['key' => 'abc1'], ['key' => 5]],
+        ],
+        'hill' => [
+            'options' => ['key' => [[3, 3], [2, 5]]],
+            'invalid' => [
+                [],
+                ['key' => 'abc'],
+                ['key' => [[1]]],
+                ['key' => [[1, 2], [3]]],
+                ['key' => [[1.5, 2], [3, 4]]],
+                ['key' => [[1, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1]]],
+            ],
+            'samples' => ['', 'ATTACKATDAWN'],
+        ],
+        'aes-256-gcm' => [
+            'options' => ['key' => 'secret'],
+            'invalid' => [[], ['key' => ''], ['key' => 123]],
+        ],
     ];
 
     private const SECURITY_LEVELS = ['educational', 'modern', 'not-applicable'];
@@ -136,6 +159,74 @@ final class AlgorithmContractTest extends TestCase
         }
     }
 
+    public function test_options_schema_is_a_closed_object_schema(): void
+    {
+        foreach ($this->algorithms() as $id => $algorithm) {
+            $schema = $this->optionsSchemaOf($algorithm);
+
+            $this->assertSame('object', $schema->type, "\"{$id}\": options schema must be of type object");
+            $this->assertInstanceOf(\stdClass::class, $schema->properties, "\"{$id}\": properties must be a JSON object");
+            $this->assertIsArray($schema->required, "\"{$id}\": required must be a list");
+            $this->assertFalse($schema->additionalProperties, "\"{$id}\": undeclared options must not be allowed");
+            $this->assertObjectNotHasProperty('$schema', $schema, "\"{$id}\": \$schema would break draft-07 validators");
+
+            foreach ($schema->required as $name) {
+                $this->assertObjectHasProperty($name, $schema->properties, "\"{$id}\": required option \"{$name}\" is not declared");
+            }
+
+            foreach ((array) $schema->properties as $name => $property) {
+                $this->assertNotEmpty($property->title ?? null, "\"{$id}\".{$name}: missing title");
+                $this->assertNotEmpty($property->description ?? null, "\"{$id}\".{$name}: missing description");
+            }
+        }
+    }
+
+    public function test_requires_key_reflects_whether_the_schema_has_required_options(): void
+    {
+        foreach ($this->algorithms() as $id => $algorithm) {
+            $this->assertSame(
+                $this->optionsSchemaOf($algorithm)->required !== [],
+                $algorithm->describe()->requiresKey,
+                "\"{$id}\": requiresKey disagrees with the options schema",
+            );
+        }
+    }
+
+    public function test_valid_fixture_options_satisfy_the_schema(): void
+    {
+        foreach ($this->algorithms(EncryptionAlgorithm::class) as $id => $algorithm) {
+            $options = self::ENCRYPTION_FIXTURES[$id]['options'] ?? $this->fail("Missing fixture for \"{$id}\"");
+
+            $this->assertTrue(
+                $this->schemaAccepts($algorithm, $options),
+                "\"{$id}\": the schema rejects options the algorithm accepts: ".json_encode($options),
+            );
+        }
+    }
+
+    public function test_options_the_algorithm_rejects_are_rejected_by_the_schema(): void
+    {
+        // Garante que validar no front com o schema dá o mesmo veredito que o
+        // back, para tudo o que um JSON Schema consegue expressar.
+        foreach ($this->algorithms(EncryptionAlgorithm::class) as $id => $algorithm) {
+            $invalid = self::ENCRYPTION_FIXTURES[$id]['invalid'] ?? $this->fail("Missing fixture for \"{$id}\"");
+
+            foreach ($invalid as $options) {
+                $encoded = json_encode($options);
+
+                try {
+                    $algorithm->encrypt('ABCD', $options);
+                    $this->fail("\"{$id}\": fixture lists options the algorithm accepts as invalid: {$encoded}");
+                } catch (InvalidAlgorithmOptionsException) {
+                    $this->assertFalse(
+                        $this->schemaAccepts($algorithm, $options),
+                        "\"{$id}\": the schema accepts options the algorithm rejects: {$encoded}",
+                    );
+                }
+            }
+        }
+    }
+
     public function test_decode_reverses_encode_for_any_bytes(): void
     {
         $samples = [...self::TEXT_SAMPLES, "\x00\x01\xfe\xff", random_bytes(64)];
@@ -186,6 +277,25 @@ final class AlgorithmContractTest extends TestCase
         $this->assertNotEmpty($algorithms, 'No algorithms found for '.($contract ?? 'any contract'));
 
         return $algorithms;
+    }
+
+    /**
+     * O schema exatamente como o cliente o recebe (após serializar em JSON).
+     */
+    private function optionsSchemaOf(DescribesAlgorithm $algorithm): \stdClass
+    {
+        return json_decode(json_encode($algorithm->describe(), JSON_THROW_ON_ERROR), flags: JSON_THROW_ON_ERROR)->options;
+    }
+
+    /**
+     * @param  array<string, mixed>  $options
+     */
+    private function schemaAccepts(DescribesAlgorithm $algorithm, array $options): bool
+    {
+        // (object): opções vazias precisam virar {} no JSON, não [].
+        $data = json_decode(json_encode((object) $options, JSON_THROW_ON_ERROR), flags: JSON_THROW_ON_ERROR);
+
+        return (new Validator())->validate($data, $this->optionsSchemaOf($algorithm))->isValid();
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Cryptography\Hill;
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
 use App\Cryptography\Contracts\EncryptionAlgorithm;
+use App\Cryptography\Contracts\OptionsSchema;
 use App\Cryptography\Support\IntegerResidue;
 
 /**
@@ -381,6 +382,27 @@ final class Hill implements EncryptionAlgorithm, DescribesAlgorithm
             supportsHashing: false,
             requiresKey: true,
             securityLevel: 'educational',
+            options: OptionsSchema::object(
+                properties: [
+                    'key' => [
+                        'type' => 'array',
+                        'title' => 'Key matrix',
+                        'description' => sprintf(
+                            'Square matrix of integers, from 2x2 to %1$dx%1$d, whose determinant is coprime with 26 (e.g. [[3, 3], [2, 5]]).',
+                            self::MAX_MATRIX_SIZE,
+                        ),
+                        'minItems' => 2,
+                        'maxItems' => self::MAX_MATRIX_SIZE,
+                        'items' => [
+                            'type' => 'array',
+                            'minItems' => 2,
+                            'maxItems' => self::MAX_MATRIX_SIZE,
+                            'items' => ['type' => 'integer'],
+                        ],
+                    ],
+                ],
+                required: ['key'],
+            ),
         );
     }
 }

@@ -101,4 +101,20 @@ final class ExposedLanguageTest extends TestCase
             );
         }
     }
+
+    public function test_option_titles_and_descriptions_are_in_english(): void
+    {
+        $texts = collect($this->getJson('/api/algorithms')->json('data'))
+            ->flatMap(fn (array $algorithm) => collect($algorithm['options']['properties'] ?? [])
+                ->flatMap(fn (array $option, string $name) => [
+                    "{$algorithm['id']}.{$name}.title" => $option['title'] ?? '',
+                    "{$algorithm['id']}.{$name}.description" => $option['description'] ?? '',
+                ]));
+
+        $this->assertNotEmpty($texts);
+
+        foreach ($texts as $path => $text) {
+            $this->assertTrue(mb_check_encoding($text, 'ASCII'), "{$path} contains non-ASCII text: {$text}");
+        }
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Cryptography\Vigenere;
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
 use App\Cryptography\Contracts\EncryptionAlgorithm;
+use App\Cryptography\Contracts\OptionsSchema;
 
 /**
  * Vigenère: soma modular entre o texto e uma chave repetida ao longo dele.
@@ -108,6 +109,18 @@ final class Vigenere implements EncryptionAlgorithm, DescribesAlgorithm
             supportsHashing: false,
             requiresKey: true,
             securityLevel: 'educational',
+            options: OptionsSchema::object(
+                properties: [
+                    'key' => [
+                        'type' => 'string',
+                        'title' => 'Key',
+                        'description' => 'Keyword made only of letters (A-Z, case-insensitive), repeated along the text.',
+                        'minLength' => 1,
+                        'pattern' => '^[A-Za-z]+$',
+                    ],
+                ],
+                required: ['key'],
+            ),
         );
     }
 }

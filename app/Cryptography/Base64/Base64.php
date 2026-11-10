@@ -5,6 +5,7 @@ namespace App\Cryptography\Base64;
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
 use App\Cryptography\Contracts\EncodingAlgorithm;
+use App\Cryptography\Contracts\OptionsSchema;
 
 /**
  * Base64 via base64_encode()/base64_decode() nativos do PHP.
@@ -48,6 +49,7 @@ final class Base64 implements EncodingAlgorithm, DescribesAlgorithm
             supportsHashing: false,
             requiresKey: false,
             securityLevel: 'not-applicable',
+            options: OptionsSchema::none(),
         );
     }
 }

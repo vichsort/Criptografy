@@ -5,6 +5,7 @@ namespace App\Cryptography\Hex;
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
 use App\Cryptography\Contracts\EncodingAlgorithm;
+use App\Cryptography\Contracts\OptionsSchema;
 
 /**
  * Hexadecimal via bin2hex()/hex2bin() nativos do PHP.
@@ -50,6 +51,7 @@ final class Hex implements EncodingAlgorithm, DescribesAlgorithm
             supportsHashing: false,
             requiresKey: false,
             securityLevel: 'not-applicable',
+            options: OptionsSchema::none(),
         );
     }
 }

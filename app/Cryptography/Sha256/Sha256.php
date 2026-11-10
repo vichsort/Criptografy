@@ -5,6 +5,7 @@ namespace App\Cryptography\Sha256;
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
 use App\Cryptography\Contracts\HashAlgorithm;
+use App\Cryptography\Contracts\OptionsSchema;
 
 /**
  * SHA-256 via hash() nativo do PHP. Sem implementação manual — reproduzir
@@ -32,6 +33,7 @@ final class Sha256 implements HashAlgorithm, DescribesAlgorithm
             supportsHashing: true,
             requiresKey: false,
             securityLevel: 'modern',
+            options: OptionsSchema::none(),
         );
     }
 }

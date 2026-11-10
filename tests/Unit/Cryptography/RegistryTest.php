@@ -5,6 +5,7 @@ namespace Tests\Unit\Cryptography;
 use App\Cryptography\AlgorithmNotFoundException;
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
+use App\Cryptography\Contracts\OptionsSchema;
 use App\Cryptography\Registry;
 use PHPUnit\Framework\TestCase;
 
@@ -103,6 +104,7 @@ final class RegistryTest extends TestCase
                     supportsHashing: false,
                     requiresKey: true,
                     securityLevel: 'educational',
+                    options: OptionsSchema::none(),
                 );
             }
         };

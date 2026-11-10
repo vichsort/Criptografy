@@ -5,6 +5,7 @@ namespace App\Cryptography\Caesar;
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
 use App\Cryptography\Contracts\EncryptionAlgorithm;
+use App\Cryptography\Contracts\OptionsSchema;
 use App\Cryptography\Support\IntegerResidue;
 
 /**
@@ -88,6 +89,16 @@ final class Caesar implements EncryptionAlgorithm, DescribesAlgorithm
             supportsHashing: false,
             requiresKey: true,
             securityLevel: 'educational',
+            options: OptionsSchema::object(
+                properties: [
+                    'shift' => [
+                        'type' => 'integer',
+                        'title' => 'Shift',
+                        'description' => 'Number of positions each letter is shifted. Any integer is accepted; only its value mod 26 matters.',
+                    ],
+                ],
+                required: ['shift'],
+            ),
         );
     }
 }

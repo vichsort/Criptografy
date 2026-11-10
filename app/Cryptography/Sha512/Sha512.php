@@ -5,6 +5,7 @@ namespace App\Cryptography\Sha512;
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
 use App\Cryptography\Contracts\HashAlgorithm;
+use App\Cryptography\Contracts\OptionsSchema;
 
 /**
  * SHA-512 via hash() nativo do PHP — mesmo raciocínio do Sha256 (Seção 13).
@@ -32,6 +33,7 @@ final class Sha512 implements HashAlgorithm, DescribesAlgorithm
             supportsHashing: true,
             requiresKey: false,
             securityLevel: 'modern',
+            options: OptionsSchema::none(),
         );
     }
 }

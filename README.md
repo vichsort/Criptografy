@@ -51,6 +51,30 @@ Os algoritmos estão organizados em `app/Cryptography/Contracts/`:
 | `HashAlgorithm` | Digest unidirecional e irreversível (não possui decrypt) | `hash(string $input, array $options = []): string` |
 | `EncodingAlgorithm` | Transformação de representação sem garantias de confidencialidade | `encode(string $input): string`<br>`decode(string $input): string` |
 
+### Esquema de opções (`GET /api/algorithms`)
+
+Cada algoritmo declara em `describe()` o **JSON Schema** das opções que aceita (campo `options`), montado com `App\Cryptography\Contracts\OptionsSchema`. O frontend pode gerar e validar o formulário a partir dele, sem duplicar regras:
+
+```json
+{
+  "id": "caesar",
+  "options": {
+    "type": "object",
+    "properties": {
+      "shift": { "type": "integer", "title": "Shift", "description": "..." }
+    },
+    "required": ["shift"],
+    "additionalProperties": false
+  }
+}
+```
+
+* Usa apenas palavras-chave idênticas no draft-07 e no 2020-12 e **não declara `$schema`**, para funcionar com validadores configurados para draft-07 (ex.: o AJV padrão do `react-jsonschema-form`).
+* Algoritmos sem opções (hashes e encodings) expõem um objeto vazio e fechado (`"properties": {}`).
+* Regras que um JSON Schema não expressa (ex.: matriz do Hill quadrada e inversível mod 26) continuam validadas só no back, que responde 422.
+* O servidor é mais tolerante que o schema (ex.: aceita `shift` como string numérica). O contrato garantido pelos testes é: o que o algoritmo recusa, o schema também recusa.
+* `requiresKey` é mantido por compatibilidade e equivale a `options.required` não ser vazio.
+
 ---
 
 ## Algoritmos Implementados e Limitações
@@ -81,14 +105,14 @@ Os algoritmos estão organizados em `app/Cryptography/Contracts/`:
 
 Para adicionar um algoritmo sem alterar o código existente (Open/Closed):
 
-1. **Criar a classe do algoritmo**: Crie um diretório em `app/Cryptography/{NomeDoAlgoritmo}/`. A classe deve implementar `DescribesAlgorithm` e um dos contratos de operação (`EncryptionAlgorithm`, `HashAlgorithm` ou `EncodingAlgorithm`).
+1. **Criar a classe do algoritmo**: Crie um diretório em `app/Cryptography/{NomeDoAlgoritmo}/`. A classe deve implementar `DescribesAlgorithm` e um dos contratos de operação (`EncryptionAlgorithm`, `HashAlgorithm` ou `EncodingAlgorithm`), e declarar em `describe()` o schema das opções (`OptionsSchema::object(...)` ou `OptionsSchema::none()`).
 2. **Definir exceções dedicadas**: Se o algoritmo exigir validações específicas de opções ou chaves, crie uma classe de exceção que herde de `App\Cryptography\Contracts\InvalidAlgorithmOptionsException`.
 3. **Registrar no Service Provider**: Adicione uma única linha em `app/Providers/CryptographyServiceProvider.php`. O identificador é lido de `describe()->id` (ids duplicados são recusados):
    ```php
    $registry->register($app->make(NovoAlgoritmo::class));
    ```
 4. **Adicionar testes unitários**: Crie a suíte em `tests/Unit/Cryptography/{NomeDoAlgoritmo}/` validando reversibilidade, entradas inválidas, strings vazias e metadados.
-5. **Testes de contrato**: `tests/Contract/AlgorithmContractTest.php` verifica automaticamente todo algoritmo registrado (coerência dos metadados com o contrato implementado, reversibilidade, determinismo do hash e erros de opções). Algoritmos de criptografia precisam apenas de uma entrada em `ENCRYPTION_FIXTURES` com opções válidas; sem ela, a suíte falha.
+5. **Testes de contrato**: `tests/Contract/AlgorithmContractTest.php` verifica automaticamente todo algoritmo registrado (coerência dos metadados com o contrato implementado, reversibilidade, determinismo do hash e erros de opções). Algoritmos de criptografia precisam apenas de uma entrada em `ENCRYPTION_FIXTURES` com opções válidas (`options`) e opções que devem ser recusadas (`invalid`); a suíte confere que o JSON Schema concorda com o algoritmo nos dois casos.
 
 ---
 
