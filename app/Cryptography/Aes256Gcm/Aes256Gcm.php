@@ -55,12 +55,13 @@ final class Aes256Gcm implements DescribesAlgorithm, EncryptionAlgorithm
             self::TAG_LENGTH,
         );
 
+        // Only fails on an environment error (e.g. the cipher is unavailable),
+        // which no input can trigger, so it is left out of the coverage target.
+        // @codeCoverageIgnoreStart
         if ($ciphertext === false) {
-            // Only happens on an environment error (e.g. the cipher is
-            // unavailable), which bootstrapping the application already
-            // checks indirectly.
             throw new \RuntimeException('Unexpected failure while encrypting with AES-256-GCM.');
         }
+        // @codeCoverageIgnoreEnd
 
         return base64_encode($nonce.$tag.$ciphertext);
     }

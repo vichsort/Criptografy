@@ -10,5 +10,6 @@ parameters:
         - bootstrap/app.php
         - config
         - routes
+        - scripts
         - tests
     level: max
