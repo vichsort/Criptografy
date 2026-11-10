@@ -5,6 +5,7 @@ namespace App\Cryptography\Hill;
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
 use App\Cryptography\Contracts\EncryptionAlgorithm;
+use App\Cryptography\Support\IntegerResidue;
 
 /**
  * Hill: cada bloco de N letras é tratado como um vetor e transformado por
@@ -149,13 +150,14 @@ final class Hill implements EncryptionAlgorithm, DescribesAlgorithm
                 throw HillException::invalidKeyFormat();
             }
 
-            $matrix[] = array_map(function (mixed $value): int {
-                if (! $this->isIntegerLike($value)) {
-                    throw HillException::invalidKeyFormat();
-                }
-
-                return (int) $value;
-            }, $row);
+            // Cada valor é reduzido mod 26 já na leitura: a cifra só depende
+            // da matriz em mod 26, e entradas pequenas impedem que o
+            // determinante e os cofatores estourem o limite de int.
+            $matrix[] = array_map(
+                static fn (mixed $value): int => IntegerResidue::of($value, self::ALPHABET_SIZE)
+                    ?? throw HillException::invalidKeyFormat(),
+                $row,
+            );
         }
 
         // O Hill exige que a matriz seja inversível em mod 26; validar aqui
@@ -168,23 +170,6 @@ final class Hill implements EncryptionAlgorithm, DescribesAlgorithm
         }
 
         return $matrix;
-    }
-
-    private function isIntegerLike(mixed $value): bool
-    {
-        if (is_int($value)) {
-            return true;
-        }
-
-        if (is_float($value)) {
-            return floor($value) === $value;
-        }
-
-        if (is_string($value) && $value !== '') {
-            return ctype_digit(ltrim($value, '-'));
-        }
-
-        return false;
     }
 
     // ------------------------------------------------------------------

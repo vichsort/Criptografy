@@ -5,6 +5,7 @@ namespace App\Cryptography\Caesar;
 use App\Cryptography\Contracts\AlgorithmMetadata;
 use App\Cryptography\Contracts\DescribesAlgorithm;
 use App\Cryptography\Contracts\EncryptionAlgorithm;
+use App\Cryptography\Support\IntegerResidue;
 
 /**
  * Caesar: cifra de substituição por deslocamento fixo do alfabeto.
@@ -31,6 +32,9 @@ final class Caesar implements EncryptionAlgorithm, DescribesAlgorithm
     }
 
     /**
+     * Retorna o deslocamento já reduzido a [0, 26). Só o valor mod 26 importa
+     * para a cifra, e reduzir aqui evita overflow ao negar o shift no decrypt.
+     *
      * @param  array<string, mixed>  $options
      *
      * @throws CaesarException
@@ -41,16 +45,8 @@ final class Caesar implements EncryptionAlgorithm, DescribesAlgorithm
             throw CaesarException::missingShift();
         }
 
-        $shift = $options['shift'];
-
-        $isIntegerLike = is_int($shift)
-            || (is_string($shift) && $shift !== '' && ctype_digit(ltrim($shift, '-')));
-
-        if (! $isIntegerLike) {
-            throw CaesarException::invalidShift($shift);
-        }
-
-        return (int) $shift;
+        return IntegerResidue::of($options['shift'], self::ALPHABET_SIZE)
+            ?? throw CaesarException::invalidShift($options['shift']);
     }
 
     private function shiftText(string $input, int $shift): string

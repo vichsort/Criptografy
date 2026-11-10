@@ -95,6 +95,46 @@ final class HillTest extends TestCase
         $this->hill->encrypt('HELP', ['key' => [[3, 3.5], [2, 5]]]);
     }
 
+    public function test_key_value_with_repeated_minus_signs_throws(): void
+    {
+        // Se '--1' fosse lido como 0, det([[0,3],[1,5]]) = -3 ≡ 23 seria
+        // inversível e a cifra seguiria silenciosamente com a chave errada.
+        $this->expectException(HillException::class);
+        $this->expectExceptionMessage('números inteiros');
+
+        $this->hill->encrypt('HELP', ['key' => [['--1', 3], [1, 5]]]);
+    }
+
+    public function test_key_value_string_beyond_integer_range_is_reduced_modulo_26(): void
+    {
+        // 99999999999999999999 mod 26 = 21; det([[21,3],[2,5]]) = 99 ≡ 21 (coprimo de 26).
+        $this->assertSame(
+            $this->hill->encrypt('HELP', ['key' => [[21, 3], [2, 5]]]),
+            $this->hill->encrypt('HELP', ['key' => [['99999999999999999999', 3], [2, 5]]]),
+        );
+    }
+
+    public function test_large_integer_key_values_do_not_overflow_the_determinant(): void
+    {
+        // PHP_INT_MAX mod 26 = 7; det([[7,3],[2,5]]) = 29 ≡ 3 (coprimo de 26).
+        $key = ['key' => [[PHP_INT_MAX, 3], [2, 5]]];
+
+        $this->assertSame(
+            $this->hill->encrypt('HELP', ['key' => [[7, 3], [2, 5]]]),
+            $this->hill->encrypt('HELP', $key),
+        );
+        $this->assertSame('HELP', $this->hill->decrypt($this->hill->encrypt('HELP', $key), $key));
+    }
+
+    public function test_float_key_value_beyond_exact_precision_throws(): void
+    {
+        // 1e20 não é representável exatamente como inteiro; aceitar seria
+        // cifrar com um valor diferente do que o cliente acredita ter enviado.
+        $this->expectException(HillException::class);
+
+        $this->hill->encrypt('HELP', ['key' => [[1e20, 3], [2, 5]]]);
+    }
+
     public function test_decrypt_input_length_must_be_a_multiple_of_block_size(): void
     {
         $this->expectException(HillException::class);

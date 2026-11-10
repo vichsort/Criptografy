@@ -95,6 +95,47 @@ final class CaesarTest extends TestCase
         $this->caesar->encrypt('abc', ['shift' => 'not-a-number']);
     }
 
+    public function test_shift_as_integral_float_is_accepted(): void
+    {
+        // JSON "3.0" chega como float; o Hill já aceitava, o Caesar passa a aceitar também.
+        $this->assertSame(
+            $this->caesar->encrypt('abc', ['shift' => 3]),
+            $this->caesar->encrypt('abc', ['shift' => 3.0]),
+        );
+    }
+
+    public function test_fractional_shift_throws(): void
+    {
+        $this->expectException(CaesarException::class);
+
+        $this->caesar->encrypt('abc', ['shift' => 3.5]);
+    }
+
+    public function test_shift_with_repeated_minus_signs_throws(): void
+    {
+        $this->expectException(CaesarException::class);
+
+        $this->caesar->encrypt('abc', ['shift' => '--3']);
+    }
+
+    public function test_shift_string_beyond_integer_range_wraps_via_modulo(): void
+    {
+        // 99999999999999999999 mod 26 = 21
+        $this->assertSame(
+            $this->caesar->encrypt('abc', ['shift' => 21]),
+            $this->caesar->encrypt('abc', ['shift' => '99999999999999999999']),
+        );
+    }
+
+    public function test_decrypt_with_minimum_integer_shift_does_not_overflow(): void
+    {
+        // PHP_INT_MIN mod 26 = 18; negar PHP_INT_MIN sem reduzir antes estoura para float.
+        $this->assertSame(
+            $this->caesar->decrypt('abc', ['shift' => 18]),
+            $this->caesar->decrypt('abc', ['shift' => PHP_INT_MIN]),
+        );
+    }
+
     public function test_empty_input_returns_empty_string(): void
     {
         $this->assertSame('', $this->caesar->encrypt('', ['shift' => 5]));
