@@ -25,6 +25,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        // Toda resposta de erro em /api/* é JSON, mesmo quando o cliente não
+        // envia "Accept: application/json" (o fetch() do navegador não envia).
+        // Sem isso, falhas de validação viram redirect 302 e 404/405 viram HTML.
+        $exceptions->shouldRenderJsonWhen(
+            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+        );
+
         // Traduz os erros de domínio da criptografia (Seção 23) em respostas
         // JSON coerentes para a API, sem que os controllers precisem
         // conhecer códigos de status HTTP.
