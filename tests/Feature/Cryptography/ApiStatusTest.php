@@ -18,6 +18,23 @@ final class ApiStatusTest extends TestCase
         ]);
     }
 
+    public function test_root_works_without_application_key(): void
+    {
+        // A API não criptografa cookies nem usa sessão; a falta de APP_KEY
+        // não pode derrubar o endpoint de status.
+        config(['app.key' => null]);
+
+        $this->getJson('/')->assertOk();
+    }
+
+    public function test_root_does_not_start_a_session(): void
+    {
+        $response = $this->getJson('/');
+
+        $response->assertOk();
+        $this->assertFalse($response->headers->has('Set-Cookie'));
+    }
+
     public function test_api_allows_cors_preflight_requests(): void
     {
         $response = $this->withHeaders([
