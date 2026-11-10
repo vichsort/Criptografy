@@ -12,7 +12,7 @@ final class VigenereTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->vigenere = new Vigenere();
+        $this->vigenere = new Vigenere;
     }
 
     public function test_encrypts_the_classic_lemon_example(): void

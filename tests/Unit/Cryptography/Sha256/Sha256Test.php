@@ -11,7 +11,7 @@ final class Sha256Test extends TestCase
 
     protected function setUp(): void
     {
-        $this->sha256 = new Sha256();
+        $this->sha256 = new Sha256;
     }
 
     public function test_delegates_to_the_native_php_hash_function(): void

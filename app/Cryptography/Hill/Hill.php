@@ -22,7 +22,7 @@ use App\Cryptography\Support\IntegerResidue;
  * quebraria o alinhamento dos blocos — é uma limitação estrutural de cifras
  * de bloco clássicas, não um descuido de implementação.
  */
-final class Hill implements EncryptionAlgorithm, DescribesAlgorithm
+final class Hill implements DescribesAlgorithm, EncryptionAlgorithm
 {
     private const ALPHABET_SIZE = 26;
 

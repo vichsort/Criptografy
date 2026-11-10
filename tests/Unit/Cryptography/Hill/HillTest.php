@@ -15,7 +15,7 @@ final class HillTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->hill = new Hill();
+        $this->hill = new Hill;
         $this->key2x2 = ['key' => [[3, 3], [2, 5]]];
     }
 

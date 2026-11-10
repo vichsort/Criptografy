@@ -13,7 +13,7 @@ use App\Cryptography\Contracts\OptionsSchema;
  * Assim como Base64: implementa EncodingAlgorithm, não EncryptionAlgorithm
  * (Seção 14) — sem chave, sem noção de segurança.
  */
-final class Hex implements EncodingAlgorithm, DescribesAlgorithm
+final class Hex implements DescribesAlgorithm, EncodingAlgorithm
 {
     public function encode(string $input): string
     {

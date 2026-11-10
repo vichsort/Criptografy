@@ -12,6 +12,4 @@ use InvalidArgumentException;
  * HTTP em bootstrap/app.php) reaja de forma uniforme a "entrada inválida para
  * este algoritmo" sem precisar conhecer cada exceção concreta (Seção 23).
  */
-abstract class InvalidAlgorithmOptionsException extends InvalidArgumentException
-{
-}
+abstract class InvalidAlgorithmOptionsException extends InvalidArgumentException {}

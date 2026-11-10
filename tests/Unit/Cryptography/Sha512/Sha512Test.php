@@ -11,7 +11,7 @@ final class Sha512Test extends TestCase
 
     protected function setUp(): void
     {
-        $this->sha512 = new Sha512();
+        $this->sha512 = new Sha512;
     }
 
     public function test_delegates_to_the_native_php_hash_function(): void

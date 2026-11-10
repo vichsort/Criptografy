@@ -14,7 +14,7 @@ use App\Cryptography\Contracts\OptionsSchema;
  * aqui é mínima e a separação é mais clara que uma abstração prematura
  * (Seção 21).
  */
-final class Sha512 implements HashAlgorithm, DescribesAlgorithm
+final class Sha512 implements DescribesAlgorithm, HashAlgorithm
 {
     public function hash(string $input, array $options = []): string
     {

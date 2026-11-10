@@ -16,7 +16,7 @@ final class CaesarTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->caesar = new Caesar();
+        $this->caesar = new Caesar;
     }
 
     public function test_encrypts_a_classic_phrase(): void

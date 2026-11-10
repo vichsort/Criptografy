@@ -16,7 +16,7 @@ use App\Cryptography\Contracts\OptionsSchema;
  * diferentes (/api/encode e /api/decode, não /api/encrypt e /api/decrypt).
  * Base64 não possui chave nem noção de segurança (Seção 14).
  */
-final class Base64 implements EncodingAlgorithm, DescribesAlgorithm
+final class Base64 implements DescribesAlgorithm, EncodingAlgorithm
 {
     public function encode(string $input): string
     {

@@ -13,14 +13,14 @@ final class RegistryTest extends TestCase
 {
     public function test_has_returns_false_for_unregistered_algorithm(): void
     {
-        $registry = new Registry();
+        $registry = new Registry;
 
         $this->assertFalse($registry->has('vigenere'));
     }
 
     public function test_register_and_get_returns_the_same_instance(): void
     {
-        $registry = new Registry();
+        $registry = new Registry;
         $algorithm = $this->fakeAlgorithm('caesar');
 
         $registry->register($algorithm);
@@ -31,7 +31,7 @@ final class RegistryTest extends TestCase
 
     public function test_get_throws_for_unregistered_algorithm(): void
     {
-        $registry = new Registry();
+        $registry = new Registry;
 
         $this->expectException(AlgorithmNotFoundException::class);
 
@@ -40,7 +40,7 @@ final class RegistryTest extends TestCase
 
     public function test_all_aggregates_metadata_of_every_registered_algorithm(): void
     {
-        $registry = new Registry();
+        $registry = new Registry;
         $registry->register($this->fakeAlgorithm('caesar'));
         $registry->register($this->fakeAlgorithm('vigenere'));
 
@@ -56,7 +56,7 @@ final class RegistryTest extends TestCase
 
     public function test_register_rejects_algorithms_that_do_not_implement_describes_algorithm(): void
     {
-        $registry = new Registry();
+        $registry = new Registry;
 
         $this->expectException(\TypeError::class);
 
@@ -68,7 +68,7 @@ final class RegistryTest extends TestCase
     {
         // O id vem só de describe(): não existe um segundo lugar onde ele
         // possa divergir do que GET /api/algorithms anuncia.
-        $registry = new Registry();
+        $registry = new Registry;
         $registry->register($this->fakeAlgorithm('hill'));
 
         $this->assertTrue($registry->has('hill'));
@@ -77,7 +77,7 @@ final class RegistryTest extends TestCase
 
     public function test_registering_two_algorithms_with_the_same_id_throws(): void
     {
-        $registry = new Registry();
+        $registry = new Registry;
         $registry->register($this->fakeAlgorithm('caesar'));
 
         $this->expectException(\LogicException::class);

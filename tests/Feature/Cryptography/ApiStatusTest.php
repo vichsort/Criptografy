@@ -56,4 +56,3 @@ final class ApiStatusTest extends TestCase
         $response->assertHeader('Access-Control-Allow-Origin', '*');
     }
 }
-

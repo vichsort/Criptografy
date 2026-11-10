@@ -29,7 +29,7 @@ final class OptionsSchema
             'type' => 'object',
             // Um array PHP vazio seria serializado como [] (lista); o schema
             // exige um objeto JSON ({}).
-            'properties' => $properties === [] ? new stdClass() : $properties,
+            'properties' => $properties === [] ? new stdClass : $properties,
             'required' => $required,
             'additionalProperties' => false,
         ];

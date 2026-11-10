@@ -18,7 +18,7 @@ use App\Cryptography\Support\IntegerResidue;
  * Isso é uma decisão deliberada de escopo educacional: o Caesar clássico
  * opera sobre um alfabeto de 26 letras, não sobre Unicode completo.
  */
-final class Caesar implements EncryptionAlgorithm, DescribesAlgorithm
+final class Caesar implements DescribesAlgorithm, EncryptionAlgorithm
 {
     private const ALPHABET_SIZE = 26;
 

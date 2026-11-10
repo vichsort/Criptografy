@@ -295,7 +295,7 @@ final class AlgorithmContractTest extends TestCase
         // (object): opções vazias precisam virar {} no JSON, não [].
         $data = json_decode(json_encode((object) $options, JSON_THROW_ON_ERROR), flags: JSON_THROW_ON_ERROR);
 
-        return (new Validator())->validate($data, $this->optionsSchemaOf($algorithm))->isValid();
+        return (new Validator)->validate($data, $this->optionsSchemaOf($algorithm))->isValid();
     }
 
     /**

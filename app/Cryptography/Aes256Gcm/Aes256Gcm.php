@@ -30,7 +30,7 @@ use App\Cryptography\Contracts\OptionsSchema;
  * string sirva como "chave" neste demonstrativo. Documentado aqui de
  * propósito, para não passar a falsa impressão de segurança de produção.
  */
-final class Aes256Gcm implements EncryptionAlgorithm, DescribesAlgorithm
+final class Aes256Gcm implements DescribesAlgorithm, EncryptionAlgorithm
 {
     private const CIPHER = 'aes-256-gcm';
 

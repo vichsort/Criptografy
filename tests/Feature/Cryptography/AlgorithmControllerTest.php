@@ -32,7 +32,7 @@ final class AlgorithmControllerTest extends TestCase
         $algorithms = json_decode($this->getJson('/api/algorithms')->getContent())->data;
         $sha256 = collect($algorithms)->firstWhere('id', 'sha-256');
 
-        $this->assertEquals(new \stdClass(), $sha256->options->properties);
+        $this->assertEquals(new \stdClass, $sha256->options->properties);
         $this->assertSame([], $sha256->options->required);
         $this->assertFalse($sha256->options->additionalProperties);
     }

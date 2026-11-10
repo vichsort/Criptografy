@@ -17,7 +17,7 @@ use App\Cryptography\Contracts\OptionsSchema;
  * algoritmo — NÃO avançam a posição da chave, para que a mesma frase com ou
  * sem pontuação/espaços produza o mesmo deslocamento letra a letra.
  */
-final class Vigenere implements EncryptionAlgorithm, DescribesAlgorithm
+final class Vigenere implements DescribesAlgorithm, EncryptionAlgorithm
 {
     private const ALPHABET_SIZE = 26;
 

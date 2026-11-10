@@ -12,7 +12,7 @@ final class Base64Test extends TestCase
 
     protected function setUp(): void
     {
-        $this->base64 = new Base64();
+        $this->base64 = new Base64;
     }
 
     public function test_encodes_a_known_string(): void

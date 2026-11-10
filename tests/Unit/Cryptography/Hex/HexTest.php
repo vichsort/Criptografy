@@ -12,7 +12,7 @@ final class HexTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->hex = new Hex();
+        $this->hex = new Hex;
     }
 
     public function test_encodes_a_known_string(): void

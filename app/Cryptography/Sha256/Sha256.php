@@ -14,7 +14,7 @@ use App\Cryptography\Contracts\OptionsSchema;
  * Hash != Encryption: não implementa EncryptionAlgorithm, não possui
  * decrypt() (Interface Segregation, Seção 20).
  */
-final class Sha256 implements HashAlgorithm, DescribesAlgorithm
+final class Sha256 implements DescribesAlgorithm, HashAlgorithm
 {
     public function hash(string $input, array $options = []): string
     {

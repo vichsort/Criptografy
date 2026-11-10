@@ -12,7 +12,7 @@ final class Aes256GcmTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->aes = new Aes256Gcm();
+        $this->aes = new Aes256Gcm;
     }
 
     public function test_decrypt_reverses_encrypt_with_the_same_key(): void

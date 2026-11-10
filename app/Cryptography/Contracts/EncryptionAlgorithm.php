@@ -13,7 +13,7 @@ interface EncryptionAlgorithm
 {
     /**
      * @param  array<string, mixed>  $options  Opções específicas do algoritmo
-     *                                          (ex.: ['shift' => 3], ['key' => '...']).
+     *                                         (ex.: ['shift' => 3], ['key' => '...']).
      *
      * @throws InvalidAlgorithmOptionsException quando as opções são inválidas para este algoritmo.
      */

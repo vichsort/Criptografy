@@ -200,7 +200,7 @@ final class HashEncodeDecodeTest extends TestCase
     {
         // Ciphertext gerado fora da API (ex.: por outra ferramenta) com
         // plaintext binário — a API não consegue representá-lo em JSON.
-        $ciphertext = (new Aes256Gcm())->encrypt("\xff\xfe", ['key' => 'k']);
+        $ciphertext = (new Aes256Gcm)->encrypt("\xff\xfe", ['key' => 'k']);
 
         $response = $this->postJson('/api/decrypt', [
             'algorithm' => 'aes-256-gcm',

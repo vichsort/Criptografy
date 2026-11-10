@@ -24,7 +24,7 @@ final class CryptographyServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(Registry::class, function ($app): Registry {
-            $registry = new Registry();
+            $registry = new Registry;
 
             $registry->register($app->make(Caesar::class));
             $registry->register($app->make(Vigenere::class));
