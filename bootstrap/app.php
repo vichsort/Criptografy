@@ -37,6 +37,15 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
 
+        // Erros causados pela entrada do cliente não são falhas da aplicação:
+        // viram resposta 4xx, mas não vão para o log.
+        $exceptions->dontReport([
+            AlgorithmNotFoundException::class,
+            UnsupportedOperationException::class,
+            InvalidAlgorithmOptionsException::class,
+            NonTextResultException::class,
+        ]);
+
         // Traduz os erros de domínio da criptografia (Seção 23) em respostas
         // JSON coerentes para a API, sem que os controllers precisem
         // conhecer códigos de status HTTP.

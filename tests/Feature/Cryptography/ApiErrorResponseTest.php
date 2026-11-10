@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Cryptography;
 
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Testing\TestResponse;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -35,6 +37,33 @@ final class ApiErrorResponseTest extends TestCase
 
         $response->assertStatus(405);
         $response->assertJsonStructure(['message']);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>, int}>
+     */
+    public static function clientErrors(): iterable
+    {
+        yield 'algoritmo inexistente' => ['/api/encrypt', ['algorithm' => 'nope', 'input' => 'a'], 404];
+        yield 'operação não suportada' => ['/api/encrypt', ['algorithm' => 'sha-256', 'input' => 'a'], 422];
+        yield 'opções inválidas' => ['/api/encrypt', ['algorithm' => 'caesar', 'input' => 'a'], 422];
+        yield 'resultado não UTF-8' => ['/api/decode', ['algorithm' => 'hex', 'input' => 'ff'], 422];
+    }
+
+    /**
+     * Erros causados pela entrada do cliente não são falhas da aplicação:
+     * registrá-los no log (com stacktrace) só gera ruído em produção.
+     *
+     * @param  array<string, mixed>  $body
+     */
+    #[DataProvider('clientErrors')]
+    public function test_client_errors_are_not_reported_to_the_log(string $uri, array $body, int $status): void
+    {
+        Exceptions::fake();
+
+        $this->postJson($uri, $body)->assertStatus($status);
+
+        Exceptions::assertNothingReported();
     }
 
     /**
