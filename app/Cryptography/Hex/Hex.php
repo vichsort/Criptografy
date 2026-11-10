@@ -30,13 +30,9 @@ final class Hex implements DescribesAlgorithm, EncodingAlgorithm
             throw HexException::invalidInput();
         }
 
-        $decoded = hex2bin($input);
-
-        if ($decoded === false) {
-            throw HexException::invalidInput();
-        }
-
-        return $decoded;
+        // The input was validated above, so pack() (unlike hex2bin(), which
+        // returns false on bad input) never needs a failure branch.
+        return pack('H*', $input);
     }
 
     public function describe(): AlgorithmMetadata
