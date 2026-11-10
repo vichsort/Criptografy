@@ -9,6 +9,7 @@
         "laravel/framework": "^13.0"
     },
     "require-dev": {
+        "infection/infection": "^0.35.10",
         "larastan/larastan": "^3.14",
         "laravel/pint": "^1.13",
         "mockery/mockery": "^1.6",
@@ -41,7 +42,8 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "infection/extension-installer": true
         }
     },
     "minimum-stability": "stable",
